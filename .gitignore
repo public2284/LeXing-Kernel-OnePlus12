@@ -1,0 +1,32 @@
+# Build outputs
+out/
+dist/
+# Build outputs. out/ and dist/ hold every build product; the exact-name
+# entries below are a safety net for stray kernel artifacts at the root.
+# Device baselines such as configs/device/dtb/*.dtb are tracked evidence and
+# must never be ignored — keep broad DTB/Image patterns out of this file.
+/*.o
+/*.ko
+/*.cmd
+/Image
+/Image.gz
+/vmlinux
+/vmlinux.bin
+/Module.symvers
+
+# Toolchain tarballs, never committed (fetched and verified by the builder image)
+*.tar.gz
+*.tar.xz
+
+# Credentials and secrets — must never enter this repository
+*.key
+*.pem
+*.p12
+.env
+secrets/
+
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

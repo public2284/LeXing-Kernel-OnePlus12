@@ -1,0 +1,3 @@
+# Build profile: full.
+# Minimal + SUSFS + all stable compile-time features from the Feature Registry.
+# Symbols land here in Phase 1; empty for now and intentionally so.

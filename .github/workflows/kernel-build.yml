@@ -1,0 +1,189 @@
+# Kernel Build — manual dispatch only (project rule 13.3).
+# Full compilation is blocked until .phase-state reaches phase3; the resolve job
+# fails closed. Also reusable via workflow_call from experimental-build and
+# release-build so build logic lives in one place.
+name: Kernel Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Build profile
+        type: choice
+        options: [minimal, full, debug, experimental]
+        default: minimal
+      ccache:
+        description: Enable ccache
+        type: boolean
+        default: true
+  workflow_call:
+    inputs:
+      profile:
+        description: Build profile (minimal|full|debug|experimental)
+        type: string
+        default: minimal
+      ccache:
+        description: Enable ccache
+        type: boolean
+        default: true
+      artifact_suffix:
+        description: Suffix for artifact names, e.g. -experimental or -candidate
+        type: string
+        default: ''
+      retention_days:
+        description: Artifact retention in days
+        type: number
+        default: 30
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kernel-build-${{ github.ref_name }}-${{ inputs.profile }}
+  cancel-in-progress: true
+
+jobs:
+  resolve:
+    name: Resolve pins and phase gate
+    runs-on: ubuntu-latest
+    outputs:
+      image_ref: ${{ steps.image.outputs.ref }}
+      pins: ${{ steps.pins.outputs.text }}
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          submodules: recursive
+
+      - name: Build prerequisites (phase, image pin, manifest)
+        run: build/checks/build_prereqs.sh
+
+      - name: Read pinned builder image
+        id: image
+        run: echo "ref=$(bash -c 'source build/common.sh; image_ref')" >> "$GITHUB_OUTPUT"
+
+      - name: Record submodule pins
+        id: pins
+        run: |
+          git submodule status > /tmp/pins.txt
+          {
+            echo '## Submodule pins'
+            echo '```text'
+            cat /tmp/pins.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "text<<EOF"
+            cat /tmp/pins.txt
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Compile (${{ inputs.profile }})
+    needs: resolve
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.resolve.outputs.image_ref }}
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          submodules: recursive
+
+      - name: Restore ccache
+        if: ${{ inputs.ccache }}
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: /root/.ccache
+          key: ccache-${{ inputs.profile }}-${{ github.sha }}
+          restore-keys: ccache-${{ inputs.profile }}-
+
+      - name: Compile kernel
+        run: PROFILE=${{ inputs.profile }} CCACHE=${{ inputs.ccache }} bash build/build_kernel.sh
+
+      - name: Upload build tree (Image, modules, config, logs, build-info)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: kernel-out${{ inputs.artifact_suffix }}
+          path: out/
+          retention-days: ${{ inputs.retention_days }}
+          if-no-files-found: error
+
+  package:
+    name: Package (AnyKernel3)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (with submodules, for AnyKernel3)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          submodules: recursive
+
+      - name: Download build tree
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: kernel-out${{ inputs.artifact_suffix }}
+          path: out/
+
+      - name: Build flashable zip
+        run: SUFFIX=${{ inputs.artifact_suffix }} bash build/package_anykernel.sh
+
+      - name: Upload package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: anykernel3${{ inputs.artifact_suffix }}
+          path: dist/
+          retention-days: ${{ inputs.retention_days }}
+          if-no-files-found: error
+
+  test:
+    name: Full verification (L1-L3)
+    needs: [resolve, package]
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.resolve.outputs.image_ref }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Download build tree
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: kernel-out${{ inputs.artifact_suffix }}
+          path: out/
+
+      - name: Download package
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: anykernel3${{ inputs.artifact_suffix }}
+          path: dist/
+
+      - name: Run all checks (image format, device params, DTB, KMI, symbols, modules, package, SHA256)
+        run: SUFFIX=${{ inputs.artifact_suffix }} bash build/checks/run_checks.sh
+
+      - name: Upload test report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: test-report${{ inputs.artifact_suffix }}
+          path: test-report/
+          if-no-files-found: error
+
+  report:
+    name: Metrics report
+    needs: [build, package, test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Download build tree
+        if: needs.build.result == 'success'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: kernel-out${{ inputs.artifact_suffix }}
+          path: out/
+
+      - name: Render build metrics
+        if: needs.build.result == 'success'
+        run: bash build/metrics.sh --render

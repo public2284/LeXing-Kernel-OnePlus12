@@ -1,0 +1,11 @@
+# Dependabot is limited to GitHub Actions versions on purpose: submodule and
+# toolchain updates must never be automated (project rule 13.4.2 — no pulling
+# unreviewed upstream changes into a build). Every PR is reviewed manually and
+# auto-merge stays disabled everywhere.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5

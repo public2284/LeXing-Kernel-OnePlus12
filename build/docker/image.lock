@@ -1,0 +1,6 @@
+# Immutable reference to the pinned build environment image.
+# Written by hand after a toolchain-image.yml run: copy the digest from that
+# run's Job Summary (or the image-digest artifact) into this file via a
+# reviewed pull request. kernel-build refuses to run while this is empty.
+# Format: IMAGE_REF=ghcr.io/<owner>/lexing-kernel-builder@sha256:<digest>
+IMAGE_REF=

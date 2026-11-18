@@ -1,0 +1,3 @@
+# Build profile: debug.
+# Full plus debug symbols and dynamic debug facilities. Kept bootable: heavy
+# sanitizers stay out unless explicitly approved. Symbols land here in Phase 1.

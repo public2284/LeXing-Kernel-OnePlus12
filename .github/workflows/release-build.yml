@@ -1,0 +1,125 @@
+# Release Build — candidate build, then publishing behind the production
+# environment with required reviewers (project rule 13.3).
+#
+# Gate order (no ambiguity):
+#   tag-gate -> candidate-build (compile + L1-L3 checks) -> verify-gate (L4)
+#     -> publish (environment: production, approval required)
+# A release is created only when candidate-build succeeded AND L4 == PASS AND
+# dry_run is false. CI green but L4 missing or FAIL blocks publication.
+name: Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build candidate and run all checks, do NOT publish
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-build-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  tag-gate:
+    name: Tag gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Validate release tag
+        run: build/checks/release_gate.sh
+
+  candidate-build:
+    name: Candidate build and full test
+    needs: tag-gate
+    uses: ./.github/workflows/kernel-build.yml
+    with:
+      profile: full
+      artifact_suffix: -candidate
+      retention_days: 14
+
+  verify-gate:
+    name: L4 device verification gate
+    needs: candidate-build
+    runs-on: ubuntu-latest
+    outputs:
+      l4: ${{ steps.l4.outputs.state }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Read device verification record
+        id: l4
+        run: echo "state=$(build/checks/l4_gate.sh "$GITHUB_REF_NAME")" >> "$GITHUB_OUTPUT"
+
+      - name: Refuse on failed device verification
+        if: steps.l4.outputs.state == 'FAIL'
+        run: |
+          echo "L4 = FAIL: on-device verification failed for $GITHUB_REF_NAME" >&2
+          echo "Fix the kernel and delete the tag, or the release stays blocked." >&2
+          exit 1
+
+      - name: Publish decision
+        run: |
+          case "${{ steps.l4.outputs.state }}" in
+            PASS)
+              if [ "${{ inputs.dry_run }}" = "true" ]; then
+                echo "L4 = PASS, but dry_run is set: candidate only, no release." >> "$GITHUB_STEP_SUMMARY"
+              else
+                echo "L4 = PASS: publish job will request approval from the production environment." >> "$GITHUB_STEP_SUMMARY"
+              fi
+              ;;
+            NEEDS_DEVICE_VERIFICATION)
+              echo "L4 = NEEDS_DEVICE_VERIFICATION: no on-device record for $GITHUB_REF_NAME — publication is blocked until a PASS record is merged." >> "$GITHUB_STEP_SUMMARY"
+              ;;
+          esac
+
+  publish:
+    name: Publish (requires approval)
+    needs: [candidate-build, verify-gate]
+    if: >-
+      needs.candidate-build.result == 'success' &&
+      needs.verify-gate.outputs.l4 == 'PASS' &&
+      inputs.dry_run == false
+    environment: production
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Download candidate artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: anykernel3-candidate
+          path: dist/
+
+      - name: Verify artifact integrity
+        run: build/checks/sha256_verify.sh dist
+
+      - name: Read package digest
+        id: digest
+        run: |
+          zip="$(ls dist/*.zip | head -n1)"
+          echo "zip=$zip" >> "$GITHUB_OUTPUT"
+          echo "sha=sha256:$(sha256sum "$zip" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        run: gh release create "$GITHUB_REF_NAME" dist/* --title "$GITHUB_REF_NAME" --verify-tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
+        with:
+          subject-name: ${{ steps.digest.outputs.zip }}
+          subject-path: ${{ steps.digest.outputs.zip }}
+          subject-digest: ${{ steps.digest.outputs.sha }}

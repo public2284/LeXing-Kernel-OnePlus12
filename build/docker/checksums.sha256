@@ -1,0 +1,4 @@
+# SHA256 of every toolchain artifact fetched during the image build.
+# Format: <sha256>  <description>
+# Filled during Phase 2 together with the pins in toolchain.env. The image build
+# fails on any mismatch.

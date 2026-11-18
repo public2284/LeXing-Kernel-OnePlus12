@@ -1,0 +1,19 @@
+# Source of truth for every patch that enters the kernel tree.
+#
+# Schema (validated by build/checks/manifest_schema.sh on every pull request):
+#   patches:
+#     - id:             0001-something      (numbered; applied in listed order)
+#       name:           human readable name
+#       source_url:     upstream URL the patch was imported from
+#       upstream_commit: the exact commit the patch corresponds to
+#       sha256:         sha256 of patches/<id>.patch as committed here
+#       feature_id:     features/ registry entry this patch belongs to
+#       applies_to:     kernel | anykernel3 | other submodule
+#       license:        upstream license (GPL-2.0 for kernel patches)
+#
+# Rules (docs/PATCHES.md):
+#  - No patch is committed without a complete entry.
+#  - The sha256 must match the file on disk; patch_integrity.sh enforces it.
+#  - Overwriting a patch means a new entry and a review, never a silent edit.
+
+patches: []

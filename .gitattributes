@@ -1,0 +1,19 @@
+# Line endings: this repository is built on Linux runners. Every text file that
+# the build touches must stay LF, even when checked out on Windows.
+* text=auto eol=lf
+
+*.sh         text eol=lf
+*.fragment   text eol=lf
+*.patch      text eol=lf
+*.diff       text eol=lf
+*.yml        text eol=lf
+*.yaml       text eol=lf
+*.md         text eol=lf
+*.manifest   text eol=lf
+*.lock       text eol=lf
+*.env        text eol=lf
+Dockerfile   text eol=lf
+
+*.img   binary
+*.bin   binary
+*.zip   binary

@@ -1,0 +1,82 @@
+# Toolchain Image — build and publish the pinned build environment to GHCR.
+# Manual dispatch only (project rule 13.2: builds are intentional, never
+# triggered by file changes). Published digest is recorded by hand into
+# build/docker/image.lock through a reviewed pull request: this workflow takes
+# no repository write permissions for automation (project rule 13.4).
+name: Toolchain Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      push:
+        description: Push image to GHCR (false = dry build test)
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: toolchain-image
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build and publish builder image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Read environment version
+        id: env
+        run: |
+          v="$(grep -E '^ENV_VERSION=' build/docker/ENV_VERSION | head -n1 | cut -d= -f2-)"
+          [ -n "$v" ] || { echo "ENV_VERSION missing in build/docker/ENV_VERSION" >&2; exit 1; }
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+      - name: Read pinned base image
+        id: base
+        run: |
+          b="$(grep -E '^BASE_IMAGE=' build/docker/toolchain.env | head -n1 | cut -d= -f2-)"
+          [ -n "$b" ] || { echo "BASE_IMAGE not chosen yet (Phase 1/2 task); refusing to build an unpinned image" >&2; exit 1; }
+          echo "image=$b" >> "$GITHUB_OUTPUT"
+
+      - name: Login to GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        with:
+          context: build/docker
+          file: build/docker/Dockerfile
+          push: ${{ inputs.push }}
+          build-args: |
+            BASE_IMAGE=${{ steps.base.outputs.image }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/lexing-kernel-builder:${{ steps.env.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/lexing-kernel-builder:latest
+
+      - name: Publish digest for manual write-back
+        run: |
+          printf 'IMAGE_REF=ghcr.io/%s/lexing-kernel-builder@%s\n' "$GITHUB_REPOSITORY_OWNER" "${{ steps.build.outputs.digest }}" > image-digest.txt
+          {
+            echo '## Builder image published'
+            echo '```text'
+            cat image-digest.txt
+            echo '```'
+            echo 'Copy this line into build/docker/image.lock via a reviewed pull request.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload digest artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: image-digest
+          path: image-digest.txt
+          retention-days: 30

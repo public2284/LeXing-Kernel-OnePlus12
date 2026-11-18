@@ -1,0 +1,4 @@
+# Build profile: experimental.
+# Full plus experimental feature flags. Artifacts built from this profile are
+# always suffixed -experimental with short retention and never become a release.
+# Symbols land here in Phase 1.

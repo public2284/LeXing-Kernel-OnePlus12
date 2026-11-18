@@ -1,0 +1,44 @@
+# Kernel Test — static, no-compile checks.
+# Runs on pull requests (read-only) and manually. Nothing here compiles, flashes
+# or publishes. Project rule 13.7: Phase 0 allows read-only investigation only.
+name: Kernel Test
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kernel-test-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  static-checks:
+    name: Static checks (no compilation)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          submodules: recursive
+
+      - name: Workflow hygiene (SHA-pinned actions, no pull_request_target)
+        run: build/checks/workflow_hygiene.sh
+
+      - name: Shellcheck (or bash -n fallback)
+        run: build/checks/shellcheck_all.sh
+
+      - name: Manifest and Feature Registry schema
+        run: build/checks/manifest_schema.sh
+
+      - name: Patch provenance and integrity
+        run: build/checks/patch_integrity.sh
+
+      - name: Kconfig symbol existence
+        run: build/checks/kconfig_symbols.sh
+
+      - name: AnyKernel3 config sanity
+        run: build/checks/anykernel_config.sh

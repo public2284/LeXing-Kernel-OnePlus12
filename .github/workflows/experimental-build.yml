@@ -1,0 +1,47 @@
+# Experimental Build — manual dispatch on experimental/* branches only.
+# Artifacts carry a -experimental suffix and 7-day retention. This workflow has
+# no write permissions: it can never tag or publish (project rule 13.3 —
+# experimental builds must never overwrite stable versions).
+name: Experimental Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Build profile
+        type: choice
+        options: [experimental, full, debug]
+        default: experimental
+
+permissions:
+  contents: read
+
+concurrency:
+  group: experimental-build-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  branch-guard:
+    name: Enforce experimental/* branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refuse non-experimental refs
+        run: |
+          case "$GITHUB_REF" in
+            refs/heads/experimental/*)
+              echo "branch ok: $GITHUB_REF_NAME"
+              ;;
+            *)
+              echo "refused: experimental-build only runs on experimental/* branches, got '$GITHUB_REF'" >&2
+              exit 1
+              ;;
+          esac
+
+  build:
+    name: Experimental build and test
+    needs: branch-guard
+    uses: ./.github/workflows/kernel-build.yml
+    with:
+      profile: ${{ inputs.profile }}
+      artifact_suffix: -experimental
+      retention_days: 7

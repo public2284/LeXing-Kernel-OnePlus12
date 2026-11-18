@@ -1,0 +1,4 @@
+# Build profile: minimal.
+# GKI baseline + SukiSU integration only. No SUSFS, no experimental features.
+# Compile-time symbols are added here in Phase 1 once the Feature Registry
+# defines them; empty for now and intentionally so.

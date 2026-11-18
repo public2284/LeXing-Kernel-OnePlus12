@@ -55,3 +55,7 @@ self-hosted Actions runner. Checks are never dropped to save resources.
 - Actions cache: 10 GB per repository
 - GHCR container images: currently free (public packages)
 - Environment required reviewers: available on public repositories
+- Release/env tags: immutable. Tag protection uses repository rulesets
+  (`release-tags` for `v*`, `env-version-tags` for `env-b*`: deletion and
+  non-fast-forward enforced for everyone); the legacy tag-protection API
+  was retired by GitHub in 2024.

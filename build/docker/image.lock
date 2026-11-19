@@ -2,5 +2,5 @@
 # Written by hand after a toolchain-image.yml run: copy the digest from that
 # run's Job Summary (or the image-digest artifact) into this file via a
 # reviewed pull request. kernel-build refuses to run while this is empty.
-# Format: IMAGE_REF=ghcr.io/<owner>/lexing-kernel-builder@sha256:<digest>
-IMAGE_REF=ghcr.io/public2284/lexing-kernel-builder@sha256:1965cae7bb89246a052d427a19ad6534e4eb2674ebae906459b79318cbbcc38a
+# Format: IMAGE_REF=ghcr.io/public2284/lexing-kernel-builder@sha256:93743cd8561a0b1427ca50baddc662213089c46bb7653577ba37a3cd5156ad0e
+IMAGE_REF=ghcr.io/public2284/lexing-kernel-builder@sha256:93743cd8561a0b1427ca50baddc662213089c46bb7653577ba37a3cd5156ad0e

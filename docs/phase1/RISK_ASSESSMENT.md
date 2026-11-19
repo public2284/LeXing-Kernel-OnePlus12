@@ -14,6 +14,7 @@
 | R8 | 模块签名机制变更导致 stock 模块加载被拦截 | 中 | 低 | SIG_FORCE 保持未启用；config 比对 | 回退 |
 | R9 | 编译环境漂移导致不可复现 | 中 | 低 | digest 固定镜像 + 双版本链（ENV_VERSION） | 重新构建并核对 |
 | R10 | 高安全环境检测（银行/Play Integrity）因内核变动失败 | 中 | 中 | SUSFS 伪造能力保留；迁移后用 PIF 等验证 | 回退 |
+| R11 | SukiSU Kbuild 构建期网络调用（git fetch --unshallow / curl api.github.com）破坏可复现性 | 低 | 中 | 固定 KSU_BUILD_REF=v3.0.0 并保留 submodule .git 元数据；构建日志记录实际版本串 | 版本串异常时重新构建并核对 |
 
 ## Phase 3 准入门槛（合并 R1–R3 为硬门槛）
 

@@ -31,3 +31,11 @@
 
 - 采用路线 A 时：SukiSU-Nova 的 ksud 自动生成 `susfs_manager` 模块（设备上现有 v4.0.0 为同一机制产物）。不额外安装 sidex15 helper。
 - 配置备份与迁移纳入刷机前备份清单（抄 3.3 节）。
+
+## 编译期开关现状（v3.0.0 源码实测，2026-11-19）
+
+- SukiSU-Nova v3.0.0 的 `kernel/Kconfig` 只定义 KSU / KSU_DEBUG / KSU_MANUAL_SU / KPM / KSU_DISABLE_MANAGER / KSU_DISABLE_POLICY 等符号，**不定义 CONFIG_KSU_SUSFS 及其子符号**。
+- `kernel/Kbuild` 中 `kernelsu-objs += extension/susfs_extension.o` 为**无条件**语句：只要 CONFIG_KSU=y，SUSFS 必然编入。
+- 因此路线 A 下 SUSFS **没有独立编译期开关**；启用/停用粒度在运行期（管理器清单与内核启动参数）。
+- 设备现有 CONFIG_KSU_SUSFS_* 符号集来自旧 KSU 4.1.3 系补丁，与 v3.0.0 不同名；功能对齐矩阵按**功能等价**理解，不按符号同名理解。
+- 需要编译期关闭 SUSFS 的场景只能由路线 B 承担（gitlab simonpunk/susfs4ksu 分支 `gki-android14-6.1` 已确认存在）。

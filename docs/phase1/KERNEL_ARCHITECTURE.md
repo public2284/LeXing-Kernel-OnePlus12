@@ -49,7 +49,7 @@ Phase 1 技术方案产出。继承 Phase 0 证据，继承审查硬约束（KMI
 
 ## 编译期 vs 运行期分层
 
-- **编译期**（Kconfig，进 Image）：SukiSU 驱动、SUSFS、BTF/kprobes/ftrace 基础设施、调度器与内存可选优化。由 Build Profile 冺定（docs/phase1/BUILD_PROFILES.md）。
+- **编译期**（Kconfig，进 Image）：SukiSU 驱动、SUSFS（v3.0.0 下随 CONFIG_KSU 无条件编入，无独立编译开关）、BTF/kprobes/ftrace 基础设施、调度器与内存可选优化。由 Build Profile 冺定（docs/phase1/BUILD_PROFILES.md）。
 - **运行期**（用户态配置，不进镜像）：ZRAM 参数、SUSFS 跰径清单、SukiSU 扩展中心开关、KPM 载入。由安装器/管理器管理。
 - 原则：不把无法运行期关闭的功能伪装成可选；编译期差异必须以不同 Build Profile 提供。
 

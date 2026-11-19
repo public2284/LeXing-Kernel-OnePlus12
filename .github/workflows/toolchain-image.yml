@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf3885af677262 # v4.4.0
 
       - name: Read environment version
         id: env
@@ -36,12 +36,66 @@ jobs:
           [ -n "$v" ] || { echo "ENV_VERSION missing in build/docker/ENV_VERSION" >&2; exit 1; }
           echo "version=$v" >> "$GITHUB_OUTPUT"
 
-      - name: Read pinned base image
-        id: base
+      - name: Read pinned build environment
+        id: pins
         run: |
-          b="$(grep -E '^BASE_IMAGE=' build/docker/toolchain.env | head -n1 | cut -d= -f2-)"
-          [ -n "$b" ] || { echo "BASE_IMAGE not chosen yet (Phase 1/2 task); refusing to build an unpinned image" >&2; exit 1; }
-          echo "image=$b" >> "$GITHUB_OUTPUT"
+          get() { grep -E "^$1=" build/docker/toolchain.env | head -n1 | cut -d= -f2-; }
+          b="$(get BASE_IMAGE)"
+          [ -n "$b" ] || { echo "BASE_IMAGE not chosen (Phase 1/2 task); refusing to build an unpinned image" >&2; exit 1; }
+          {
+            echo "base_image=$b"
+            echo "base_digest=$(get BASE_DIGEST)"
+            echo "clang_repo=$(get CLANG_REPO_URL)"
+            echo "clang_ref=$(get CLANG_REF)"
+            echo "clang_pin=$(get CLANG_PIN)"
+            echo "mkbootimg_repo=$(get MKBOOTIMG_REPO_URL)"
+            echo "mkbootimg_ref=$(get MKBOOTIMG_REF)"
+            echo "mkbootimg_pin=$(get MKBOOTIMG_PIN)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Resolve and verify base image digest
+        id: digest
+        run: |
+          set -e
+          img='${{ steps.pins.outputs.base_image }}'
+          json="$(docker buildx imagetools inspect "$img" --format '{{json .}}')"
+          d="$(printf '%s' "$json" | jq -r '
+            if (.manifests? | type) == "object"
+            then [ .manifests | to_entries[]
+                    | select((.value.platform.os? // "") == "linux"
+                          and (.value.platform.architecture? // "") == "amd64")
+                    | .key ][0]
+            elif (.manifests? | type) == "array"
+            then [ .manifests[]
+                    | select((.platform.os? // "") == "linux"
+                          and (.platform.architecture? // "") == "amd64")
+                    | .digest ][0]
+            elif ((.Manifest.Manifests? // []) | length) > 0
+            then [ .Manifest.Manifests[]
+                    | select((.Platform.OS? // "") == "linux"
+                          and (.Platform.Architecture? // "") == "amd64")
+                    | .Digest ][0]
+            else (.Descriptor.digest? // .Descriptor.Digest? // "")
+            end')"
+          [ -n "$d" ] || { echo "could not resolve amd64 digest for $img" >&2; printf '%s\n' "$json" >&2; exit 1; }
+          echo "resolved amd64 digest: $d"
+          echo "digest=$d" >> "$GITHUB_OUTPUT"
+          expected='${{ steps.pins.outputs.base_digest }}'
+          if [ -n "$expected" ]; then
+            if [ "$expected" != "$d" ]; then
+              { echo "ERROR: base image digest drifted: pinned=$expected resolved=$d"; } >&2
+              exit 1
+            fi
+            echo "base image digest matches the pin"
+          else
+            echo "BASE_DIGEST is empty (first run): record the digest printed above into build/docker/toolchain.env via a reviewed PR"
+          fi
+          {
+            echo '## Base image digest'
+            echo '```text'
+            echo "BASE_DIGEST=$d"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Login to GHCR
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
@@ -58,7 +112,13 @@ jobs:
           file: build/docker/Dockerfile
           push: ${{ inputs.push }}
           build-args: |
-            BASE_IMAGE=${{ steps.base.outputs.image }}
+            BASE_IMAGE=${{ steps.pins.outputs.base_image }}
+            CLANG_REPO_URL=${{ steps.pins.outputs.clang_repo }}
+            CLANG_REF=${{ steps.pins.outputs.clang_ref }}
+            CLANG_PIN=${{ steps.pins.outputs.clang_pin }}
+            MKBOOTIMG_REPO_URL=${{ steps.pins.outputs.mkbootimg_repo }}
+            MKBOOTIMG_REF=${{ steps.pins.outputs.mkbootimg_ref }}
+            MKBOOTIMG_PIN=${{ steps.pins.outputs.mkbootimg_pin }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/lexing-kernel-builder:${{ steps.env.outputs.version }}
             ghcr.io/${{ github.repository_owner }}/lexing-kernel-builder:latest

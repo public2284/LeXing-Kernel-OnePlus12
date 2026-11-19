@@ -1,0 +1,12 @@
+diff --git a/mm/Kconfig b/mm/Kconfig
+index cddf664..bd2d3d4 100644
+--- a/mm/Kconfig
++++ b/mm/Kconfig
+@@ -1310,7 +1310,6 @@ config LOCK_MM_AND_FIND_VMA
+ 	depends on !STACK_GROWSUP
+ 
+ source "mm/damon/Kconfig"
+-source "mm/mm_osvelte/Kconfig"
+ 
+ #ifdef OPLUS_FEATURE_MM
+ config OPLUS_FEATURE_ABORT_MM

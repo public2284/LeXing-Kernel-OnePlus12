@@ -33,3 +33,15 @@ patches:
     upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
     sha256: 5806a720b8cd6dd37d8a9e215c873cb022c0a56ea966daaa42b8ac4c547d1190
     license: GPL-2.0-only
+  - id: "0210"
+    name: Drop the mm/mm_osvelte source from mm/Kconfig
+    description: >-
+      mm/Kconfig sources mm/mm_osvelte/Kconfig, but mm/mm_osvelte is published
+      as a single file, not a directory, so stock kconfig aborts with
+      'mm/Kconfig:1313: can't open file'. The source line is removed; the
+      CONFIG_MM_OSVELTE symbol is undefined afterwards and mm/Makefile's
+      obj- mapping for mm_osvelte.o therefore stays inert.
+    source_url: https://github.com/OnePlusOSS/android_kernel_oneplus_sm8650
+    upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
+    sha256: ebd81474a3371bde7fc4b76c24139ff86ea21a5c43698226f7b1b31e78e1293a
+    license: GPL-2.0-only

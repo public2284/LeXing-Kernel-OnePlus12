@@ -24,7 +24,8 @@ ENV LC_ALL=C.UTF-8
 RUN apt-get update && apt-get install -y --no-install-recommends \
         bc \
         bison \
-        build-essential \
+        build-essential 
+        ca-certificates \
         ccache \
         cpio \
         curl \

@@ -1,0 +1,101 @@
+diff --git a/drivers/base/Kconfig b/drivers/base/Kconfig
+index 740fbe8..6f04b83 100644
+--- a/drivers/base/Kconfig
++++ b/drivers/base/Kconfig
+@@ -230,6 +230,4 @@ config GENERIC_ARCH_NUMA
+ 	  Enable support for generic NUMA implementation. Currently, RISC-V
+ 	  and ARM64 use it.
+ 
+-source "drivers/base/kernelFwUpdate/Kconfig"
+-source "drivers/base/touchpanel_notify/Kconfig"
+ endmenu
+diff --git a/drivers/iio/stm/imu/Kconfig b/drivers/iio/stm/imu/Kconfig
+index 6ad1a36..6162a85 100644
+--- a/drivers/iio/stm/imu/Kconfig
++++ b/drivers/iio/stm/imu/Kconfig
+@@ -9,7 +9,6 @@ menu "Inertial measurement units"
+ source "drivers/iio/stm/imu/st_lsm6dsox/Kconfig"
+ source "drivers/iio/stm/imu/st_lsm6dsrx/Kconfig"
+ source "drivers/iio/stm/imu/st_ism330dhcx/Kconfig"
+-source "drivers/iio/stm/imu/st_asm330lhhx/Kconfig"
+ source "drivers/iio/stm/imu/st_imu68/Kconfig"
+ source "drivers/iio/stm/imu/st_ism330dlc/Kconfig"
+ source "drivers/iio/stm/imu/st_lsm6ds3/Kconfig"
+diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+index 5948ae1..f49238d 100644
+--- a/drivers/misc/Kconfig
++++ b/drivers/misc/Kconfig
+@@ -551,8 +551,5 @@ source "drivers/misc/habanalabs/Kconfig"
+ source "drivers/misc/uacce/Kconfig"
+ source "drivers/misc/pvpanic/Kconfig"
+ source "drivers/misc/mchp_pci1xxxx/Kconfig"
+-source "drivers/misc/vibrator/aw8697_haptic/Kconfig"
+-source "drivers/misc/vibrator/si_haptic/Kconfig"
+ source "drivers/misc/oplus_power_notifier/Kconfig"
+-source "drivers/misc/vibrator/oplus_haptic/Kconfig"
+ endmenu
+diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
+index 61720de..f7c8fb6 100644
+--- a/drivers/power/Kconfig
++++ b/drivers/power/Kconfig
+@@ -88,7 +88,6 @@ config OPLUS_CHG_DRM_PANEL_NOTIFY
+ 	help
+ 	  Say Y to include support
+ 
+-source "drivers/power/oplus/Kconfig"
+ 
+ menuconfig OPLUS_CHG_V2
+ 	tristate "OPLUS charging V2 system"
+diff --git a/drivers/soc/Kconfig b/drivers/soc/Kconfig
+index d4081f0..d3b8e46 100644
+--- a/drivers/soc/Kconfig
++++ b/drivers/soc/Kconfig
+@@ -29,11 +29,9 @@ source "drivers/soc/versatile/Kconfig"
+ source "drivers/soc/xilinx/Kconfig"
+ 
+ #ifdef OPLUS_FEATURE_MM_FEEDBACK
+-source "drivers/soc/oplus/multimedia/Kconfig"
+ #endif /* OPLUS_FEATURE_MM_FEEDBACK */
+ 
+ #ifdef OPLUS_TRACKPOINT_REPORT
+-source "drivers/soc/oplus/trackpoint/Kconfig"
+ #endif /* OPLUS_TRACKPOINT_REPORT */
+ 
+ #ifdef OPLUS_FEATURE_OCH
+@@ -59,36 +57,24 @@ source "kernel/oplus_cpu/waker_identify/Kconfig"
+ #endif /* OPLUS_FEATURE_WAKER_IDENTIFY */
+ 
+ #ifdef OPLUS_FEATURE_BOOT
+-source "drivers/soc/oplus/boot/cmdline_parser/Kconfig"
+-source "drivers/soc/oplus/boot/bootloader_log/Kconfig"
+-source "drivers/soc/oplus/boot/oplus_projectinfo/Kconfig"
+-source "drivers/soc/oplus/boot/bootmode/Kconfig"
+-source "drivers/soc/oplus/boot/htb/Kconfig"
+ #endif /* OPLUS_FEATURE_BOOT */
+ 
+ #ifdef OPLUS_FEATURE_QCOM_WATCHDOG
+-source "drivers/soc/oplus/boot/qcom_watchdog/Kconfig"
+ #endif
+ 
+ #ifdef OPLUS_FEATURE_MODEM_MINIDUMP
+-source "drivers/soc/oplus/mdmrst/Kconfig"
+ #endif /*OPLUS_FEATURE_MODEM_MINIDUMP*/
+ 
+ endmenu
+ 
+ #ifdef OPLUS_FEATURE_TP_BASIC
+-source "drivers/soc/oplus/device_info/Kconfig"
+ #endif /* OPLUS_FEATURE_TP_BASIC */
+ 
+ #ifdef OPLUS_FEATURE_DFT
+-source "drivers/soc/oplus/dft/Kconfig"
+ #endif /* OPLUS_FEATURE_DFT */
+ 
+ #ifdef OPLUS_UFS_DRIVER
+-source "drivers/soc/oplus/storage/Kconfig"
+-source "drivers/soc/oplus/storage/common/file_record/Kconfig"
+ #endif
+ 
+ #ifdef OPLUS_SUBSYS_SLEEP_MONITOR
+-source "drivers/soc/oplus/power/subsys_sleep_monitor/Kconfig"
+ #endif /* OPLUS_SUBSYS_SLEEP_MONITOR */

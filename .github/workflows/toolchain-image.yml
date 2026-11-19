@@ -60,24 +60,22 @@ jobs:
           img='${{ steps.pins.outputs.base_image }}'
           json="$(docker buildx imagetools inspect "$img" --format '{{json .}}')"
           d="$(printf '%s' "$json" | jq -r '
+            def amd64(e):
+              (e.annotations["com.docker.official-images.bashbrew.arch"]? == "amd64")
+              or ((e.platform.os? // "") == "linux" and (e.platform.architecture? // "") == "amd64")
+              or ((e.Platform.OS? // "") == "linux" and (e.Platform.Architecture? // "") == "amd64");
             if (.manifests? | type) == "object"
-            then [ .manifests | to_entries[]
-                    | select((.value.platform.os? // "") == "linux"
-                          and (.value.platform.architecture? // "") == "amd64")
-                    | .key ][0]
+            then [ .manifests | to_entries[] | select(.value | amd64(.)) | .key ][0]
             elif (.manifests? | type) == "array"
-            then [ .manifests[]
-                    | select((.platform.os? // "") == "linux"
-                          and (.platform.architecture? // "") == "amd64")
-                    | .digest ][0]
+            then [ .manifests[] | select(amd64(.)) | .digest ][0]
+            elif ((.manifest.manifests? // []) | length) > 0
+            then [ .manifest.manifests[] | select(amd64(.)) | .digest ][0]
             elif ((.Manifest.Manifests? // []) | length) > 0
-            then [ .Manifest.Manifests[]
-                    | select((.Platform.OS? // "") == "linux"
-                          and (.Platform.Architecture? // "") == "amd64")
-                    | .Digest ][0]
-            else (.Descriptor.digest? // .Descriptor.Digest? // "")
-            end')"
+            then [ .Manifest.Manifests[] | select(amd64(.)) | .Digest ][0]
+            else empty end')
+          idx="$(printf '%s' "$json" | jq -r '.manifest.digest? // .Descriptor.digest? // empty')"
           [ -n "$d" ] || { echo "could not resolve amd64 digest for $img" >&2; printf '%s\n' "$json" >&2; exit 1; }
+          echo "index digest:  $idx"
           echo "resolved amd64 digest: $d"
           echo "digest=$d" >> "$GITHUB_OUTPUT"
           expected='${{ steps.pins.outputs.base_digest }}'

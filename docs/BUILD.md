@@ -51,7 +51,8 @@ self-hosted Actions runner. Checks are never dropped to save resources.
 ## Cost baseline (public repository)
 
 - Standard GitHub-hosted runners: free, unlimited minutes
-- Actions artifacts: 500 MB (GitHub Free), shared with Packages storage
+- Actions artifacts: 500 MB (GitHub Free; 1 GB on Pro) — a quota separate from Packages storage
+- Packages (non-container registries): separate plan quota (2 GB on Pro) — not consumed by this project
 - Actions cache: 10 GB per repository
 - GHCR container images: currently free (public packages)
 - Environment required reviewers: available on public repositories

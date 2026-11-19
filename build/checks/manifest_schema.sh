@@ -73,6 +73,6 @@ if failures:
     for line in failures:
         print(f'  - {line}', file=sys.stderr)
     sys.exit(1)
-print(f'[lexing] manifest schema OK: 0 feature records, manifest entries consistent '
-      f'(placeholder count printed in Phase 1)')
+n_features = len(list((root / 'features').rglob('*.yaml')))
+print(f'[lexing] manifest schema OK: {n_features} feature record(s), manifest entries consistent')
 PY

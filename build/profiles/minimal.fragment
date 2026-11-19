@@ -7,6 +7,3 @@
 # Root framework: built-in SukiSU-Nova (route A). KSU defaults to y in the
 # SukiSU Kconfig; set explicitly so the first build is unambiguous.
 CONFIG_KSU=y
-# kernel/oplus_cpu is not published in the OnePlusOSS release; keep its sole
-# obj- mapping (kernel/Makefile: oplus_cpu/sched/) off (see patches/0200).
-# CONFIG_OPLUS_FEATURE_PERFORMANCE_SCHED is not set

@@ -56,6 +56,7 @@ cd "$kernel"
 bash scripts/kconfig/merge_config.sh -m -O "$OUT" \
   arch/arm64/configs/gki_defconfig \
   arch/arm64/configs/vendor/pineapple_GKI.config \
+  "$ROOT/build/profiles/common.fragment" \
   "$fragment"
 make O="$OUT" ARCH=arm64 LLVM=1 LLVM_IAS=1 \
   CROSS_COMPILE=aarch64-linux-gnu- \

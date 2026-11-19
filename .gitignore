@@ -33,3 +33,6 @@ Thumbs.db
 
 # Phase 0 raw device evidence — kept locally only (large kallsyms, .ko samples)
 docs/phase0/raw/
+
+# Phase 2 raw evidence (defconfig samples, config diffs)
+docs/phase2/raw/

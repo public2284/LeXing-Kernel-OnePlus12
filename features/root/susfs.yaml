@@ -1,0 +1,25 @@
+id: root/susfs
+name: SUSFS
+description: |
+  内核态隐藏与伪造套件：路径隐藏、挂载隐藏、maps/kstat 伪造、uname/cmdline 伪造、
+  AVC 日志伪造。设备现有 KSU_SUSFS 全套；新版随 SukiSU 内置（路线 A）。
+type: compile-time
+default_state: enabled
+risk: medium
+source:
+  repo: https://github.com/SukiSU-Nova/SukiSU-Nova
+  component: kernel/extension/susfs_extension
+  license: GPL-3.0-or-later
+dependencies:
+  - root/sukisu-nova
+conflicts: []
+kconfig:
+  - CONFIG_KSU_SUSFS=y
+compatibility:
+  device: OnePlus 12 CPH2573
+  kernel_branch: android14-6.1
+  status: REGISTERED
+enable: 随镜像刷入生效；用户态清单由管理器下发
+disable: 刷回备份 boot 镜像
+rollback: dd 回原 boot 镜像 + 恢复 susfs_config 备份
+

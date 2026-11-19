@@ -10,8 +10,8 @@ cleaned or reconfigured on the phone without explicit, risk-stated approval.
 
 ## Status
 
-`PHASE=phase0` — read-only device and source investigation
-([.phase-state](.phase-state)). Build workflows exist in this repository but are
+`PHASE=phase1` — technical plan. Phase 0 (device and source investigation) has been reviewed and approved; see [docs/phase0](docs/phase0/).
+Build workflows exist in this repository but are
 blocked until Phase 3 is approved. See [docs/phase-gate.md](docs/phase-gate.md).
 
 ## Build system

@@ -1,0 +1,25 @@
+id: root/kpm
+name: KPM (KernelPatch Module)
+description: |
+  基于 KernelPatch 的内核模块加载能力。SukiSU-Nova 官方提示启用会选中
+  CONFIG_KALLSYMS/CONFIG_KALLSYMS_ALL 且可能影响系统稳定性。首构不启用。
+type: compile-time
+default_state: disabled
+risk: medium
+source:
+  repo: https://github.com/SukiSU-Nova/SukiSU_KernelPatch_patch
+  upstream: https://github.com/bmax121/KernelPatch
+  license: GPL-2.0
+dependencies:
+  - root/sukisu-nova
+conflicts: []
+kconfig:
+  - CONFIG_KPM=y
+compatibility:
+  device: OnePlus 12 CPH2573
+  kernel_branch: android14-6.1
+  status: REGISTERED
+enable: 设置 CONFIG_KPM=y 重新构建（experimental profile）
+disable: 去除 CONFIG_KPM 重新构建
+rollback: 刷回不含 KPM 的镜像
+

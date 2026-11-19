@@ -12,4 +12,4 @@ Advancing the phase is a maintainer decision, made with the same review weight
 as a release: it follows the Phase 0–5 plan in the project specification
 (Chapter 10).
 
-Current state: `phase0` — read-only device and source investigation.
+Current state: `phase1` — technical plan (Phase 0 reviewed and approved).

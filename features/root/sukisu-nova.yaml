@@ -1,0 +1,25 @@
+id: root/sukisu-nova
+name: SukiSU Nova
+description: |
+  基于 tiann/KernelSU 独立演化的内核态 root 方案，提供 su 与权限管理、App Profile，
+  与 SUSFS/KPM 同项目集成。Phase 3 首构采用内置路线（CONFIG_KSU=y）。
+type: compile-time
+default_state: enabled
+risk: high
+source:
+  repo: https://github.com/SukiSU-Nova/SukiSU-Nova
+  license: GPL-3.0-or-later
+dependencies:
+  - CONFIG_KPROBES=y
+  - CONFIG_EXT4_FS=y
+conflicts: []
+kconfig:
+  - CONFIG_KSU=y
+compatibility:
+  device: OnePlus 12 CPH2573
+  kernel_branch: android14-6.1
+  status: REGISTERED
+enable: 随镜像刷入 boot 分区后生效（内置路线）
+disable: 刷回备份 boot 镜像
+rollback: dd 回原 boot 镜像（备份步骤产出物）
+

@@ -17,11 +17,12 @@
 
 ## 集成步骤（Phase 2/3 执行）
 
-1. 以 submodule 固定 commit 引入 SukiSU-Nova（**不采用官方 curl|bash 的 setup.sh 直接执行**，按规则 13.4：固定 commit + SHA256 + PATCHES.manifest 记录）。
-2. 其 `kernel/setup.sh -s main` 在源码树链接 `drivers/kernelsu` 并修改 drivers/Makefile/Kconfig——以补丁文件形式固化该改动（可复现、可审计）。
-3. main 分支前提已在 stock config 中满足（KPROBES/KRETPROBES/TRACEPOINTS/EXT4 全部 =y）。CONFIRMED。
-4. CONFIG_KSU=y（minimal profile 起）；KPM 不启用（见风险登记）。
-5. manager：SukiSU_Nova_v3.0.0_35000（与镜像版本配套，版本不匹配时管理器不识别 root）。CONFIRMED（机制）。
+1. 以 submodule 固定 commit 引入 SukiSU-Nova（**不直接执行官方 kernel/setup.sh**，按规则 13.4：固定 commit + 等效改动以补丁登记 PATCHES.manifest）。
+2. setup.sh 的实际接口为 `kernel/setup.sh [--cleanup | <commit-or-tag>]`（无 `-s` 参数），其内部执行 `git clone` + `git pull` 并在无参数时检出“最新 tag”——均为未固定版本的网络操作，违反 13.4.2，因此**不执行该脚本**。等效改动由本项目脚本在固定 submodule 上完成：创建 `drivers/kernelsu → ../../sukisu-nova/kernel` 符号链接、向 `drivers/Makefile` 追加 `obj-$(CONFIG_KSU) += kernelsu/`、向 `drivers/Kconfig` 注入 `source "drivers/kernelsu/Kconfig"`，全部以补丁固化（可复现、可审计）。
+3. 版本串纪律：v3.0.0 的 `kernel/Kbuild` 在构建期调用 `git fetch --unshallow` 与 api.github.com/releases 查询版本号（仅用于版本串，不取代码）。构建脚本须固定 `KSU_BUILD_REF=v3.0.0` 并保留 submodule 的 .git 元数据，使版本号可本地解析；离线时回退本地 git 值。
+4. main 分支前提已在 stock config 中满足（KPROBES/KRETPROBES/TRACEPOINTS/EXT4 全部 =y）。CONFIRMED。
+5. CONFIG_KSU=y（minimal profile 起）；KPM 不启用（见风险登记）。
+6. manager：SukiSU_Nova_v3.0.0_35000（与镜像版本配套，版本不匹配时管理器不识别 root）。CONFIRMED（机制）。
 
 ## 迁移顺序（不得调换）
 

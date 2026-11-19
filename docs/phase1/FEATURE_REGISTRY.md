@@ -7,7 +7,7 @@
 | ID | 名称 | 类型 | 默认 | 风险 | 状态 |
 |---|---|---|---|---|---|
 | root/sukisu-nova | SukiSU Nova | compile-time | enabled | high | REGISTERED（Phase 3 首构主功能，路线 A 内置） |
-| root/susfs | SUSFS | compile-time | enabled | medium | REGISTERED（随 SukiSU 内置，功能对齐矩阵见 SUSFS 方案） |
+| root/susfs | SUSFS | hybrid | enabled | medium | REGISTERED（随 SukiSU 内置；v3.0.0 无独立编译开关，见 SUSFS 方案） |
 | root/kpm | KPM | compile-time | disabled | medium | REGISTERED（官方提示影响稳定性；无需求，首构不启用） |
 
 ## 候选目录（未评估，不进入任何 profile）

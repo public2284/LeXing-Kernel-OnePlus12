@@ -1,4 +1,11 @@
-# SHA256 of every toolchain artifact fetched during the image build.
-# Format: <sha256>  <description>
-# Filled during Phase 2 together with the pins in toolchain.env. The image build
-# fails on any mismatch.
+# Toolchain artifact verification (project rules 13.4.3 / 13.4).
+#
+# The fetched artifacts are git checkouts from googlesource, so verification is
+# content-addressed rather than a plain file hash: the Dockerfile clones each
+# repo at a fixed ref and aborts the image build unless the resolved HEAD
+# equals the pin recorded here. That pins every blob in the tree, which is at
+# least as strong as a SHA256 over a tarball.
+#
+# Format: <resolved commit SHA>  <repo URL>  <ref used for the shallow fetch>
+eed2fff8b93ce059eea7ccd8fc5eee37f8adb432  https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86  refs/heads/llvm-r487747
+2208a03d874255af1e4eaf6cf7c156fe1dc98943  https://android.googlesource.com/platform/system/tools/mkbootimg       refs/tags/android-14.0.0_r0.102

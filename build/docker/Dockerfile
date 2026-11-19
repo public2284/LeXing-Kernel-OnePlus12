@@ -33,11 +33,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         dwarves \
         flex \
         git \
+        libelf-dev \
         libssl-dev \
+        libzstd-dev \
         lz4 \
         python3 \
         python3-yaml \
         rsync \
+        zlib1g-dev \
         zip \
         zstd \
     && rm -rf /var/lib/apt/lists/*

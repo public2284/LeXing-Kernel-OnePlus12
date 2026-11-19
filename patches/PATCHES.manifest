@@ -45,3 +45,21 @@ patches:
     upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
     sha256: ebd81474a3371bde7fc4b76c24139ff86ea21a5c43698226f7b1b31e78e1293a
     license: GPL-2.0-only
+  - id: "0220"
+    name: Drop remaining missing-source references from five subsystem Kconfigs
+    description: >-
+      A full audit of all Kconfig files at the pinned OnePlusOSS commit found
+      21 remaining `source` lines pointing at files that are not part of the
+      OSS release (the OPLUS feature Kconfigs were stripped from the published
+      tree even where the driver source directories remain): drivers/base
+      (kernelFwUpdate, touchpanel_notify), drivers/iio/stm/imu (st_asm330lhhx),
+      drivers/misc/vibrator (aw8697_haptic, si_haptic, oplus_haptic),
+      drivers/power (oplus) and drivers/soc (the drivers/soc/oplus features
+      plus their boot/storage/power sub-features). Removing the source lines
+      lets stock kconfig finish; the corresponding CONFIG_* symbols then stay
+      undefined and their obj- mappings remain inert. Completes the cleanup
+      started by patches 0200 and 0210.
+    source_url: https://github.com/OnePlusOSS/android_kernel_oneplus_sm8650
+    upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
+    sha256: 73c9d79de42b84084bf8d9c05048ee89e5cf0b02d9ad035218e9973e0509f81a
+    license: GPL-2.0-only

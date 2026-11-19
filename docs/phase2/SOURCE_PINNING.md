@@ -42,3 +42,13 @@
 
 1. 构建 KMI 比对基线：以 `abi_gki_aarch64_oplus` 为基，提取设备模块符号 CRC（Phase 3 执行）。
 2. 本仓编译环境率定：builder 镜像 pin（toolchain.env/image.lock），在 Phase 2 后续任务中完成。
+3. 增加 `source.lock` ↔ `.gitmodules` pin 一致性的 CI 静态检查（防止锁文件与 gitlink 漂移）。
+
+## 独立复核（2026-11-19，GitHub API 只读）
+
+- 5 个 pin commit 全部存在且与 `build/source.lock` 一致。
+- 三个 OnePlusOSS 仓的同步 commit 消息逐字一致（`Synchronize code for OnePlus CPH2573_16.0.10.501(EX01) …`），时间戳落在同一分钟窗口（10:24:13 / 10:24:48 / 10:25:25），为一次三仓协同同步 → 组合一致性 CONFIRMED。
+- `sukisu-nova` c60f21b9 即 tag `v3.0.0` 所指 commit（git refs 直接核实）。CONFIRMED。
+- `AnyKernel3` 80e0cc9e 至今仍是 master head（仓库近一年无新提交）。CONFIRMED。
+
+复现纪律：checkout 使用 `git clone --recurse-submodules` 或 `git submodule update --init`（停留在 gitlink commit）。`.gitmodules` 中的 `branch =` 仅供导航，禁止以 `git submodule update --remote` 漂移到分支头（规则 13.4.2）。

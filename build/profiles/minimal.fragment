@@ -3,5 +3,7 @@
 # unconditionally with CONFIG_KSU in SukiSU-Nova v3.0.0 (no compile-time
 # switch); minimal-ness comes from no KPM, no candidate tunables and no
 # runtime SUSFS list. See docs/phase1/BUILD_PROFILES.md.
-# Compile-time symbols are added here in Phase 1 once the Feature Registry
-# defines them; empty for now and intentionally so.
+
+# Root framework: built-in SukiSU-Nova (route A). KSU defaults to y in the
+# SukiSU Kconfig; set explicitly so the first build is unambiguous.
+CONFIG_KSU=y

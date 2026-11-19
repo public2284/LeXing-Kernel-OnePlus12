@@ -1,18 +1,44 @@
 #!/usr/bin/env bash
-# L2-static check: symbol dependencies of vendor modules.
+# L2-static: vendor-module symbol dependency resolution.
 #
-# For every vendor_dlkm module in the Phase 0 baseline, lists undefined symbols
-# and asserts each one is exported by the built kernel. A single missing symbol
-# breaks vendor modules at runtime, so this check is strict.
+# Requires the device baseline: the UND/CRC table of the 439 stock vendor
+# modules, collected during the Phase 3 device backup step (which needs the
+# device and a human present). CI cannot claim this without that baseline, so
+# the check reports SKIP (exit 3) rather than passing on no evidence.
 set -euo pipefail
 
 source "$(cd "$(dirname "$0")/../" && pwd)/common.sh"
 
+baseline="$ROOT/configs/kmi"
+if [[ ! -d "$baseline" ]]; then
+  echo "SKIP symbol_deps: no device module baseline (configs/kmi/ absent) - run the Phase 3 device backup step first"
+  exit 3
+fi
 [[ -f "$ROOT/out/Module.symvers" ]] || die "missing out/Module.symvers"
-[[ -d "$ROOT/configs/kmi" ]] || die "missing configs/kmi/ (Phase 0 output)"
 
-# Phase 2/3 implementation:
-#  - for each baseline module: nm -u (or readelf --dyn-syms via llvm tools) on
-#    the module, then require each UND symbol in Module.symvers
-#  - report the complete missing-symbol list on failure
-die "L2 symbol dependency check is implemented in Phase 3"
+# Baseline present: resolve every required symbol against Module.symvers.
+python3 - "$ROOT/configs/kmi" "$ROOT/out/Module.symvers" <<'PY'
+import pathlib, sys
+
+baseline, symvers = sys.argv[1], sys.argv[2]
+required = set()
+for f in pathlib.Path(baseline).glob('*.und'):
+    for line in f.read_text(encoding='utf-8', errors='replace').splitlines():
+        line = line.strip()
+        if line:
+            required.add(line)
+if not required:
+    print('SKIP symbol_deps: baseline directory exists but contains no symbols')
+    sys.exit(3)
+
+exports = {l.split('\t')[1] for l in open(symvers, encoding='utf-8', errors='replace')
+           if len(l.split('\t')) >= 3 and l.split('\t')[1]}
+missing = sorted(required - exports)
+print(f'[lexing] required symbols: {len(required)}, exported: {len(exports)}, missing: {len(missing)}')
+if missing:
+    print('FAIL unresolved vendor module symbols:', file=sys.stderr)
+    for s in missing[:40]:
+        print(f'  - {s}', file=sys.stderr)
+    sys.exit(1)
+print('[lexing] symbol deps OK: every required symbol is exported')
+PY

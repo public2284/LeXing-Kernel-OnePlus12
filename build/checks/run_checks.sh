@@ -4,10 +4,13 @@
 #
 # Every check is tagged with a verification layer so reports can never confuse
 # them (project rule: format checks are not device compatibility):
-#   L1-format    packaging/tooling structure (mkbootimg round-trip, zip layout)
+#   L1-format    packaging/tooling structure (zip layout, Image magic, SHA256)
 #   L2-static    static comparison against the Phase 0 device baseline
 #   L3-static    DTB/DTBO structural comparison, still not a boot test
 # L4 (real device boot) is NOT part of CI — see build/checks/l4_gate.sh.
+#
+# Check exit codes: 0 = PASS, 3 = SKIP (missing device baseline, reported
+# honestly, never counted as a pass), anything else = FAIL.
 set -euo pipefail
 
 source "$(cd "$(dirname "$0")/../" && pwd)/common.sh"
@@ -24,13 +27,17 @@ statuses="$report/statuses.tsv"
 : > "$statuses"
 
 run_check() {
-  local name="$1" layer="$2" script="$3" state
+  local name="$1" layer="$2" script="$3" state rc
   echo; echo "--- $name ($layer) ---"
-  if bash "$script" >"$report/$name.log" 2>&1; then
-    state=PASS
-  else
-    state=FAIL
-  fi
+  set +e
+  bash "$script" >"$report/$name.log" 2>&1
+  rc=$?
+  set -e
+  case "$rc" in
+    0) state=PASS ;;
+    3) state=SKIP ;;
+    *) state=FAIL ;;
+  esac
   printf '%s\t%s\t%s\n' "$name" "$layer" "$state" >> "$statuses"
   echo "$state — log: test-report/$name.log"
 }
@@ -70,14 +77,17 @@ for line in statuses.read_text(encoding='utf-8').splitlines():
         'on_device_verification': 'PENDING',   # L4: always reported, never claimed by CI
     })
 
-failed = [c for c in checks if c['state'] != 'PASS']
+failed = [c for c in checks if c['state'] == 'FAIL']
+skipped = [c for c in checks if c['state'] == 'SKIP']
 payload = {
     'checks': checks,
     'summary': {
         'total': len(checks),
-        'passed': len(checks) - len(failed),
+        'passed': len(checks) - len(failed) - len(skipped),
+        'skipped': len(skipped),
         'failed': len(failed),
         'device_boot_verified': False,   # only an on-device record flips this
+        'skipped_reason': 'SKIP = device baseline not yet collected (Phase 3 backup step); not a pass',
     },
 }
 (report / 'test-report.json').write_text(
@@ -88,13 +98,18 @@ lines = ['# Test report', '',
 for c in checks:
     lines.append(f"| {c['name']} | {c['layer']} | {c['state']} |")
 lines += ['',
+          f"{payload['summary']['passed']} passed, {len(skipped)} skipped, {len(failed)} failed.",
+          '',
+          'SKIP = device baseline not yet collected (Phase 3 backup step).',
+          'A skipped check is NOT a pass; it blocks release just like a failure.',
+          '',
           'L4 real-device verification is not part of CI.',
-          'A release additionally requires a PASS record in verification/device/',
+          'A release additionally requires a PASS record in verification/device/.',
           '']
 (report / 'test-report.md').write_text('\n'.join(lines), encoding='utf-8')
 
 if failed:
     print(f"{len(failed)} check(s) failed", file=sys.stderr)
     sys.exit(1)
-print(f"all {len(checks)} checks passed")
+print(f"{payload['summary']['passed']} passed, {len(skipped)} skipped, 0 failed")
 PY

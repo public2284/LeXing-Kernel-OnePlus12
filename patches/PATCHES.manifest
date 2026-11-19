@@ -1,19 +1,20 @@
-# Source of truth for every patch that enters the kernel tree.
-#
-# Schema (validated by build/checks/manifest_schema.sh on every pull request):
-#   patches:
-#     - id:             0001-something      (numbered; applied in listed order)
-#       name:           human readable name
-#       source_url:     upstream URL the patch was imported from
-#       upstream_commit: the exact commit the patch corresponds to
-#       sha256:         sha256 of patches/<id>.patch as committed here
-#       feature_id:     features/ registry entry this patch belongs to
-#       applies_to:     kernel | anykernel3 | other submodule
-#       license:        upstream license (GPL-2.0 for kernel patches)
-#
-# Rules (docs/PATCHES.md):
-#  - No patch is committed without a complete entry.
-#  - The sha256 must match the file on disk; patch_integrity.sh enforces it.
-#  - Overwriting a patch means a new entry and a review, never a silent edit.
-
-patches: []
+# Patch series. Every entry must match a patches/<id>.patch file whose SHA256
+# matches, and every patches/*.patch must be declared here (checked on every
+# pull request by build/checks/patch_integrity.sh and build/checks/
+# manifest_schema.sh). Updates are reviewed pull requests only (rule 13.4).
+patches:
+  - id: "0100"
+    name: SukiSU-Nova driver integration (drivers/kernelsu wiring)
+    description: >-
+      Wires the pinned SukiSU-Nova tree into the kernel build as a built-in
+      driver (route A): registers drivers/kernelsu in drivers/Makefile and
+      sources its Kconfig from drivers/Kconfig. Equivalent to the Makefile and
+      Kconfig edits SukiSU-Nova's kernel/setup.sh performs at commit
+      c60f21b9, re-recorded as a reviewed patch. The drivers/kernelsu symlink
+      into the pinned submodule is created at build time by
+      build/integrate_sukisu.sh (setup.sh's git clone/pull is never executed,
+      project rule 13.4.2).
+    source_url: https://github.com/SukiSU-Nova/SukiSU-Nova
+    upstream_commit: c60f21b9e00e35e898f8d21e0612465b76b9beec
+    sha256: ed098067e3d4266c9f4835972447a7ef2e6522be4218c6d96878104f951e3a87
+    license: GPL-3.0-or-later

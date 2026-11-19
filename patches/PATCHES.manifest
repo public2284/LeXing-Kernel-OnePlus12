@@ -16,5 +16,5 @@ patches:
       project rule 13.4.2).
     source_url: https://github.com/SukiSU-Nova/SukiSU-Nova
     upstream_commit: c60f21b9e00e35e898f8d21e0612465b76b9beec
-    sha256: ed098067e3d4266c9f4835972447a7ef2e6522be4218c6d96878104f951e3a87
+    sha256: 9399ff47e11121e252d253588b93eeca7ff10689598e96a48bee149229a5a8ea
     license: GPL-3.0-or-later

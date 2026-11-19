@@ -32,8 +32,17 @@ Phase 0 只读调查产出，2026-11-19。证据通道：ADB（主通道）与�
 | A/B 槽位 | 活动槽 `_b` | CONFIRMED |
 | 动态分区 | 是（dm-30..46，super=sda13） | CONFIRMED |
 | boot 参数 | `bootconfig` 支持；`kpti=0`、`kasan=off`、`nosoftlockup`、`loop.max_part=7`、OPLUS 私有参数（oplusboot.prjname=22825 等） | CONFIRMED |
-| Bootloader | 已解锁（用户确认）；oplusboot 通道 `verifiedbootstate=orange`；但标准通道 `ro.boot.verifiedbootstate=green`、`vbmeta.device_state=locked`、`flash.locked=1`（KSU/SUSFS 伪造， CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y 佐证） | CONFIRMED（用户）+ LIKELY（伪造机制） |
+| Bootloader | 两通道状态呈现不一致（原始记录见下节）。用户人工确认已解锁；差异机制未直接证明 | LIKELY |
 | SELinux | Enforcing | CONFIRMED |
+
+## Bootloader 状态证据（原始记录，未微调）
+
+- 获取路径：`adb shell cat /proc/cmdline`（oplusboot 通道）与 `adb shell getprop`（标准通道，属性源于启动参数）。
+- oplusboot 通道（/proc/cmdline 原文）：`oplusboot.verifiedbootstate=orange`
+- 标准通道（getprop 原文）：`ro.boot.verifiedbootstate=green`、`ro.boot.vbmeta.device_state=locked`、`ro.boot.flash.locked=1`、`vendor.boot.verifiedbootstate=green`、`vendor.boot.vbmeta.device_state=locked`
+- 相关配置：内核 `CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y`（内核侧具备伪造 cmdline/bootconfig 的能力，但本次未获取伪造动作本身的直接证据）。
+- 评估：用户人工确认设备已解锁，oplusboot 通道的 orange 更接近真实状态；两通道差异**推断**为 KSU/SUSFS 侧对标准通道的呈现修改。结论等级：解锁状态 LIKELY（人工确认 + orange）；伪造机制 LIKELY（能力存在 + 逻辑推断，未直接证明）。
+- 未使用 `fastboot oem device-info` 直接核实（不重启原则）。后续任何安全检查都不得以单一状态字符串作为判据。
 
 ## Root 环境（只读记录，不修改）
 

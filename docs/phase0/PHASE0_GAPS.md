@@ -14,7 +14,7 @@ Phase 0 只读调查产出。列出尚未验证、需人工裁决或需下一阶
 2. **OnePlusOSS 源码完整性**：公开源码是否包含全部 OPLUS 私有改动与 vendor 模块构建产物（stock 模块的 vermagic/CRC 能否从公开源码重现）。决定 KMI 复现风险。
 3. **KMI 详细语义未从官方文档核实**：本会话对 source.android.com 与 android.googlesource.com 均不可达；"android14-11" 的代内编号规则、"-o-" 后缀含义为推断。需在后续会话或通过其他网络出口核实（如可翻“墙”或换出口）。
 4. **SUSFS 精确版本**：设备 KSU 4.1.3（-83-g197cad88，uapi 2）属于哪个 fork、携带的 SUSFS 版本号未定位（用户口径 2.2.0）。影响新 SUSFS 版本的功能差异比对。
-5. **Bootloader 标准指示器与真实状态不一致**：oplusboot.verifiedbootstate=orange（ unlocked）与 ro.boot.verifiedbootstate=green/vbmeta.device_state=locked 并存。用户确认已解锁，绿色指示系 KSU/SUSFS 伪造（SPOOF_CMDLINE_OR_BOOTCONFIG 配置佐证）。**不重启设备、不进 fastboot 核实**——按用户结论采信，伪造机制为 LIKELY。
+5. **Bootloader 标准指示器与真实状态不一致**：oplusboot.verifiedbootstate=orange（unlocked）与 ro.boot.verifiedbootstate=green/vbmeta.device_state=locked 并存。用户人工确认已解锁；两通道差异机制未直接证明，伪造推断为 LIKELY（内核配置 SPOOF_CMDLINE_OR_BOOTCONFIG=y 提供能力前提）。**不重启设备、不进 fastboot 核实**。原始回显与获取路径已保留在 DEVICE_BASELINE.md 专节。
 6. **启动镜像未导出**：boot/init_boot/dtbo/vendor_boot 的实际镜像内容未 dd 提取。这是 Phase 3 前备份方案（第三章 3.3）的必要输入，但提取动作属于"备份"步骤，应在专门批准的备份环节执行。
 7. **DTB/DTBO 基线**：/proc/device-tree 仅提供 compatible 等顶层信息；原始 dtbo/dtb 二进制未提取，L3 比对基线缺失（与第 6 项一并处理）。
 8. **super 内部布局偏移**未测量。

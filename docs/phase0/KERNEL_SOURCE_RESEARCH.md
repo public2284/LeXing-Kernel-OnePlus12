@@ -18,6 +18,24 @@ Phase 0 只读调查产出。仅记录来源与候选版本，不克隆、不合
 
 分支头采样（2026-11-19 查询）：common 仓库默认分支头 `5c8c927af4`（2026-08-15 12:21 提交）、modules_and_devicetree `a7ab73a78d`（2026-08-15）。**这些仅是抽样点，不是锁定值**：精确 pinning 必须在 Phase 2 从 Release 清单 / 分支提交与设备构建增量（U.R4T3.…）对应后确定。状态：UNKNOWN（精确 commit ↔ 设备构建映射未建立）。
 
+**当前阶段不把 OnePlusOSS 源码标记为“设备匹配版本”。** 分支名匹配是线索而非证据。完整映射需按以下流水线建立，全部走完之前任何构建都不得以“源码=设备”为前提：
+
+```
+stock kernel（设备实况：版本串 / config.gz / vermagic）
+    ↓
+OnePlusOSS source（候选分支 b_16.0.0_oneplus12，三仓）
+    ↓
+commit identification（设备增量与分支提交的对应关系）
+    ↓
+config comparison（自建 .config vs 设备 /proc/config.gz）
+    ↓
+symbol CRC comparison（自建 Module.symvers vs 设备模块符号 CRC）
+    ↓
+vendor module compatibility assessment（第十三章 L2 检查）
+```
+
+此流水线为 Phase 1/2 首要任务；未完成前，源码状态保持 UNKNOWN（设备匹配未确立）。
+
 ## 上游 GKI
 
 - ACK `android14-6.1` 分支：设备版本串中 `-g02eb3eaaeb40` 指向其内部 GKI 提交（设备证据）。直接从 android.googlesource.com 核实分支列表未成功（本会话网络对 googlesource 不可达），状态 LIKELY（由版本串结构 + SukiSU/社区仓库惯例推断）。

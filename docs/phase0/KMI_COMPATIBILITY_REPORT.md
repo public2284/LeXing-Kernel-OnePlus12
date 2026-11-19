@@ -12,9 +12,17 @@ Phase 0 只读调查产出。核心问题：自建内核必须能装载 439 个 
 | CONFIG_MODULE_SIG | y + SIG_ALL + PROTECT，SHA1，SIG_FORCE 未启用 | CONFIRMED |
 | lsmod | 厂商模块加载中（qca_cld3_kiwi_v2、rmnet_*、msm_drm 等） | CONFIRMED |
 
-## 关键推断：跨版本装载已在设备上发生
+## 关键事实：跨版本装载已在设备上发生
 
-运行内核是 6.1.145，但 stock 模块按 6.1.141 构建。二者在同一 KMI（`android14-11`）内，靠 `modversions` 符号 CRC 兼容才得以装载。**这是 KMI 稳定性的直接证据**，也定义了迁移风险：自建内核必须保持与 stock **完全一致的 KMI 代号与符号 CRC**，任何 export 符号的 CRC 漂移都会让某个模块加载失败。状态：CONFIRMED（设备事实）。详细机制（如 abi_gki_aarch64.xml 的角色）为 LIKELY：需在 Phase 2 用 OnePlusOSS 源码树构建后对比 Module.symvers 验证。
+运行内核是 6.1.145，但 stock 模块按 6.1.141 构建。二者版本串在同一 KMI（`android14-11`）内，且 `modversions` 机制启用。这证明当前内核与这批模块间**存在实际可用的兼容关系**；但“能装载在当前内核”不能推广为“能装载在任意同 KMI 串内核”。
+
+### 结论分层（按证据支持程度）
+
+| 结论 | 当前证据支持程度 |
+|---|---|
+| 这批 stock 模块能够在当前 6.1.145 内核上正常工作 | **强**（lsmod 实际加载中，双通道读取） |
+| 这批模块依赖的符号 CRC 与当前内核兼容 | **待补证据**：CONFIG_MODVERSIONS=y 提供机制前提，但 CRC 级比对尚未执行 |
+| 任意自行编译的 android14-11 内核都能兼容这批模块 | **不成立**：KMI 串一致 ≠ 符号 ABI 一致，CRC 漂移会直接导致加载失败 |
 
 ## 对自建内核的约束
 
@@ -24,6 +32,15 @@ Phase 0 只读调查产出。核心问题：自建内核必须能装载 439 个 
 4. **SUSFS 常规隐藏与 kptr_restrict**：/proc/kallsyms 地址全部置零（470,920 行），只能取符号名，不能取地址。自建内核需保留同样的 kptr 限制或明确评估。CONFIRMED。
 
 ## KMI 检查落点（与构建系统对接）
+## Phase 1 硬约束（按审查意见固化）
+
+1. 保持 `android14-11` KMI 目标，不偏离 KMI 代号与版本串约定。
+2. 保留并核对厂商模块依赖的符号及 CRC：全量提取 /vendor/lib/modules 的 UND 符号与 CRC，与自建产物的 Module.symvers 逐项对比。
+3. 不以 vermagic 一致作为唯一兼容性判据。
+4. 必须对比自建源码构建出的符号 CRC 与 stock 内核（Module.symvers / abi_gki_aarch64.xml 途径）。
+5. 禁止通过关闭 `CONFIG_MODVERSIONS` 等方式绕过问题：modversions 是兼容机制而非障碍，关闭只会让兼容性检查消失，不会让不兼容消失。
+
+KMI 字符串一致，不等于符号 ABI 一致。此项作为 Phase 1 与 Phase 3 的验收红线。
 
 执行框架已在 第十三章 的 `build/checks/kmi_check.sh`、`symbol_deps.sh`、`module_compat.sh` 中定义；Phase 3 首次构建时必须零失败：
 - 符号依赖：设备提取的 /vendor/lib/modules 全量 UND 符号 vs 自建 Module.symvers。

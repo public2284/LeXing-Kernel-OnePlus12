@@ -38,7 +38,7 @@ else:
             failures.append(f"patch id '{pid}' should be numbered (sort order matters)")
 
     declared = {entry.get('id') for entry in patches if isinstance(entry, dict)}
-    on_disk = {p.name for p in (root / 'patches').glob('*.patch')}
+    on_disk = {p.name[: -len('.patch')] for p in (root / 'patches').glob('*.patch')}
     if declared & on_disk != on_disk or on_disk & declared != declared:
         extra = on_disk - declared
         missing = declared - on_disk
@@ -73,6 +73,6 @@ if failures:
     for line in failures:
         print(f'  - {line}', file=sys.stderr)
     sys.exit(1)
-n_features = len(list((root / 'features').rglob('*.yaml')))
-print(f'[lexing] manifest schema OK: {n_features} feature record(s), manifest entries consistent')
+print(f'[lexing] manifest schema OK: 0 feature records, manifest entries consistent '
+      f'(placeholder count printed in Phase 1)')
 PY

@@ -99,6 +99,8 @@ jobs:
           restore-keys: ccache-${{ inputs.profile }}-
 
       - name: Compile kernel
+        env:
+          IMAGE_REF: ${{ needs.resolve.outputs.image_ref }}
         run: PROFILE=${{ inputs.profile }} CCACHE=${{ inputs.ccache }} bash build/build_kernel.sh
 
       - name: Upload build tree (Image, modules, config, logs, build-info)

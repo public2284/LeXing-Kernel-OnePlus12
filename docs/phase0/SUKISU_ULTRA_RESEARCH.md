@@ -27,6 +27,8 @@ Phase 0 只读调查产出。**关键发现：项目已经更名**——`SukiSU-
 - SukiSU Nova 的“内核扩展中心”包含 CPU/vvar 伪造、AVB 日志伪造、版本伪造、SUSFS 与挂载视图隐藏，与现有模块（PIF、SensorDecoy 等）可能功能重叠 → Phase 1 需逐项去重，避免双重伪造冲突。LIKELY。
 
 ## 其他官方资源
+- 官网 sukisu.org（指南、App Profile 文档）；Weblate 项目名仍为 sukisu-ultra（历史名）；Telegram 频道 @Sukiksu。CONFIRMED。
+
 ## 与现有 Root 环境的关系（Phase 1 输入，本阶段不做架构决策）
 
 现状：设备内核内置 KernelSU 4.1.3 + SUSFS，Zygisk Next / LSPosed / PIF 等模块生态正常运行。因此 SukiSU-Nova **不是普通功能补丁**，集成即 root 实现的替换。需要明确：
@@ -38,9 +40,6 @@ Phase 0 只读调查产出。**关键发现：项目已经更名**——`SukiSU-
 5. **Zygisk Next / LSPosed 等现有模块兼容性**：这些模块面向 KSU 体系接口，SukiSU 作为 KSU 演化分支理论上兼容，但管理器更换后模块管理路径变化，需在 Phase 1 以实际加载验证，不默认沿用。
 
 **Phase 1 倾向（非决策）**：优先研究 LKM 路线，本阶段不动现有内置 root 环境。最终架构决策由 Phase 1 兼容性研究支持。本报告仅完成资料收集，不含任何集成动作。
-
-
-- 官网 sukisu.org（指南、App Profile 文档）；Weblate 项目名仍为 sukisu-ultra（历史名）；Telegram 频道 @Sukiksu。CONFIRMED。
 
 ## 适配 Android 16 的风险点（Phase 1 评估输入）
 

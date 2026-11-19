@@ -31,7 +31,6 @@ Phase 0 只读调查产出。核心问题：自建内核必须能装载 439 个 
 3. **模块签名**：stock 强制签名检查未启用（SIG_FORCE 未启用），自建内核用自签密钥亦可装载；安全上需评估是否保持该设定。LIKELY。
 4. **SUSFS 常规隐藏与 kptr_restrict**：/proc/kallsyms 地址全部置零（470,920 行），只能取符号名，不能取地址。自建内核需保留同样的 kptr 限制或明确评估。CONFIRMED。
 
-## KMI 检查落点（与构建系统对接）
 ## Phase 1 硬约束（按审查意见固化）
 
 1. 保持 `android14-11` KMI 目标，不偏离 KMI 代号与版本串约定。
@@ -41,6 +40,8 @@ Phase 0 只读调查产出。核心问题：自建内核必须能装载 439 个 
 5. 禁止通过关闭 `CONFIG_MODVERSIONS` 等方式绕过问题：modversions 是兼容机制而非障碍，关闭只会让兼容性检查消失，不会让不兼容消失。
 
 KMI 字符串一致，不等于符号 ABI 一致。此项作为 Phase 1 与 Phase 3 的验收红线。
+
+## KMI 检查落点（与构建系统对接）
 
 执行框架已在 第十三章 的 `build/checks/kmi_check.sh`、`symbol_deps.sh`、`module_compat.sh` 中定义；Phase 3 首次构建时必须零失败：
 - 符号依赖：设备提取的 /vendor/lib/modules 全量 UND 符号 vs 自建 Module.symvers。

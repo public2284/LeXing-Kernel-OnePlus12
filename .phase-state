@@ -1,4 +1,4 @@
 # Project phase gate. kernel-build refuses to compile unless this file says
 # phase3 or later. Bump it only with explicit maintainer approval.
 # See docs/phase-gate.md.
-PHASE=phase0
+PHASE=phase1

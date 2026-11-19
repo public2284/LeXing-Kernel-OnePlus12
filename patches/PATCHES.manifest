@@ -18,3 +18,18 @@ patches:
     upstream_commit: c60f21b9e00e35e898f8d21e0612465b76b9beec
     sha256: 9399ff47e11121e252d253588b93eeca7ff10689598e96a48bee149229a5a8ea
     license: GPL-3.0-or-later
+  - id: "0200"
+    name: Drop Kconfig sources for the unpublished kernel/oplus_cpu trees
+    description: >-
+      The published OnePlusOSS tree sources kernel/oplus_cpu/*/Kconfig
+      (cpufreq_health, uad, oplus_omrg, cpufreq_bouncing, oplus_overload,
+      waker_identify) from drivers/soc/Kconfig and kernel/oplus_cpu/sched/Kconfig
+      from init/Kconfig, but the kernel/oplus_cpu directory is not part of the
+      OSS release, so stock kconfig aborts with 'can't open file'. The guarded
+      blocks are removed. CONFIG_OPLUS_FEATURE_PERFORMANCE_SCHED is kept off in
+      the build profiles because kernel/Makefile builds oplus_cpu/sched/ from
+      it and that directory is likewise unpublished.
+    source_url: https://github.com/OnePlusOSS/android_kernel_oneplus_sm8650
+    upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
+    sha256: 5806a720b8cd6dd37d8a9e215c873cb022c0a56ea966daaa42b8ac4c547d1190
+    license: GPL-2.0-only

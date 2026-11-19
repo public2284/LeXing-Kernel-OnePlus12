@@ -30,3 +30,6 @@ secrets/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Phase 0 raw device evidence — kept locally only (large kallsyms, .ko samples)
+docs/phase0/raw/

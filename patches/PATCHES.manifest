@@ -61,5 +61,5 @@ patches:
       started by patches 0200 and 0210.
     source_url: https://github.com/OnePlusOSS/android_kernel_oneplus_sm8650
     upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
-    sha256: 73c9d79de42b84084bf8d9c05048ee89e5cf0b02d9ad035218e9973e0509f81a
+    sha256: 33f549ad3ddaae9819d454c955c9c8528ae1942a631f7561e22b26cf50f35a6c
     license: GPL-2.0-only

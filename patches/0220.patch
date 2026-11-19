@@ -47,10 +47,10 @@ index 61720de..f7c8fb6 100644
  menuconfig OPLUS_CHG_V2
  	tristate "OPLUS charging V2 system"
 diff --git a/drivers/soc/Kconfig b/drivers/soc/Kconfig
-index d4081f0..d3b8e46 100644
+index 3233d19..05d823d 100644
 --- a/drivers/soc/Kconfig
 +++ b/drivers/soc/Kconfig
-@@ -29,11 +29,9 @@ source "drivers/soc/versatile/Kconfig"
+@@ -29,45 +29,31 @@ source "drivers/soc/versatile/Kconfig"
  source "drivers/soc/xilinx/Kconfig"
  
  #ifdef OPLUS_FEATURE_MM_FEEDBACK
@@ -61,9 +61,6 @@ index d4081f0..d3b8e46 100644
 -source "drivers/soc/oplus/trackpoint/Kconfig"
  #endif /* OPLUS_TRACKPOINT_REPORT */
  
- #ifdef OPLUS_FEATURE_OCH
-@@ -59,36 +57,24 @@ source "kernel/oplus_cpu/waker_identify/Kconfig"
- #endif /* OPLUS_FEATURE_WAKER_IDENTIFY */
  
  #ifdef OPLUS_FEATURE_BOOT
 -source "drivers/soc/oplus/boot/cmdline_parser/Kconfig"

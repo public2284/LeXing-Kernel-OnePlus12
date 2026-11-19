@@ -72,7 +72,7 @@ jobs:
             then [ .manifest.manifests[] | select(amd64(.)) | .digest ][0]
             elif ((.Manifest.Manifests? // []) | length) > 0
             then [ .Manifest.Manifests[] | select(amd64(.)) | .Digest ][0]
-            else empty end')
+            else empty end')"
           idx="$(printf '%s' "$json" | jq -r '.manifest.digest? // .Descriptor.digest? // empty')"
           [ -n "$d" ] || { echo "could not resolve amd64 digest for $img" >&2; printf '%s\n' "$json" >&2; exit 1; }
           echo "index digest:  $idx"

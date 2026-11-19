@@ -23,7 +23,7 @@ step "Integrate SukiSU-Nova (route A, built-in)"
 ln -sfn ../../sukisu-nova/kernel "$kernel/drivers/kernelsu"
 
 [[ -f "$kernel/drivers/kernelsu/Kbuild" ]] || die "symlink broken: drivers/kernelsu/Kbuild not reachable"
-grep -q 'obj-\$(CONFIG_KSU) += kernelsu/' "$kernel/drivers/Makefile" \
+grep -qE 'obj-\$\(CONFIG_KSU\)[[:space:]]*\+=[[:space:]]*kernelsu' "$kernel/drivers/Makefile" \
   || die "drivers/Makefile missing obj-\$(CONFIG_KSU) line — apply patches/0100.patch first"
 grep -q 'source "drivers/kernelsu/Kconfig"' "$kernel/drivers/Kconfig" \
   || die "drivers/Kconfig missing the kernelsu source line — apply patches/0100.patch first"

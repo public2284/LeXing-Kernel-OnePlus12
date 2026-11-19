@@ -12,8 +12,6 @@ set -euo pipefail
 source "$(cd "$(dirname "$0")" && pwd)/common.sh"
 
 PROFILE="${PROFILE:-minimal}"
-CCACHE="${CCACHE:-true}"
-out="$ROOT/out"
 
 step "0/7 Validate profile"
 fragment="$(profile_fragment "$PROFILE")"

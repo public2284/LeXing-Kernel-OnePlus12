@@ -12,19 +12,19 @@ if [[ ! -f "$cfg" ]]; then
   exit 0
 fi
 
+# AnyKernel3 declares device.name1 and kernel.string; the block device path
+# must be set explicitly rather than inherited.
 status=0
-for key in kernel.string; do
-  if ! grep -qE "^${key}=/dev/.+|${key}=\S" "$cfg" || grep -qE "^${key}=\s*$" "$cfg"; then
-    echo "FAIL AnyKernel3/config: empty '$key'"
-    status=1
-  fi
-done
-for key in device.name1; do
-  if ! grep -qE "^${key}=.+" "$cfg"; then
-    echo "FAIL AnyKernel3/config: missing '$key'"
-    status=1
-  fi
-done
+
+if ! grep -qE '^kernel\.string=\S' "$cfg"; then
+  echo "FAIL AnyKernel3/config: empty 'kernel.string'"
+  status=1
+fi
+
+if ! grep -qE '^device\.name1=.+' "$cfg"; then
+  echo "FAIL AnyKernel3/config: missing 'device.name1'"
+  status=1
+fi
 
 if grep -nE 'blkdev=' "$cfg" | grep -qE '^[0-9]+:.*=\s*$'; then
   echo "FAIL AnyKernel3/config: empty block device path"

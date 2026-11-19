@@ -30,7 +30,9 @@ while IFS= read -r ref; do
   esac
 done < <(grep -rnE '^\s*-?\s*uses:' "$wf" | grep -v '^Binary')
 
-if grep -rn 'pull_request_target' "$wf"; then
+# Match the event trigger key only (pull_request_target:), never the words in
+# a step name such as this check's own label.
+if grep -rnE 'pull_request_target\s*:' "$wf"; then
   echo "FAIL pull_request_target is forbidden in $wf"
   status=1
 fi

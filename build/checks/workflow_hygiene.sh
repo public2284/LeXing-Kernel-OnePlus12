@@ -37,6 +37,15 @@ if grep -rnE 'pull_request_target\s*:' "$wf"; then
   status=1
 fi
 
+# YAML syntax: a step name containing ': ' silently breaks the whole workflow.
+python3 - "$wf" <<'PY'
+import sys, pathlib, yaml
+for f in sorted(pathlib.Path(sys.argv[1]).glob('*.yml')):
+    try:
+        yaml.safe_load(f.read_text(encoding='utf-8'))
+    except yaml.YAMLError as e:
+        sys.exit(f'FAIL {f.name}: {e}')
+PY
 if [[ "$status" -eq 0 ]]; then
   log "workflow hygiene OK: all actions SHA-pinned, no pull_request_target"
 else

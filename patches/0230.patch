@@ -1,0 +1,53 @@
+diff --git a/kernel/sched/walt/walt_halt.c b/kernel/sched/walt/walt_halt.c
+index 9004fb5..3e24960 100644
+--- a/kernel/sched/walt/walt_halt.c
++++ b/kernel/sched/walt/walt_halt.c
+@@ -400,16 +400,24 @@ static void update_clients(struct cpumask *cpus, bool halt, enum pause_client cl
+ {
+ 	int cpu;
+ 	struct halt_cpu_state *halt_cpu_state;
++	#if IS_ENABLED(CONFIG_OPLUS_FEATURE_SCHED_ASSIST)
+ 	int *pause_client_state;
++	#endif
+ 
+ 	for_each_cpu(cpu, cpus) {
+ 		halt_cpu_state = per_cpu_ptr(&halt_state, cpu);
++		#if IS_ENABLED(CONFIG_OPLUS_FEATURE_SCHED_ASSIST)
+ 		pause_client_state = per_cpu_ptr(oplus_cur_pause_client, cpu);
++		#endif
+ 		if (halt) {
++			#if IS_ENABLED(CONFIG_OPLUS_FEATURE_SCHED_ASSIST)
+ 			pause_client_state[type] |= client;
++			#endif
+ 			halt_cpu_state->client_vote_mask[type] |=  client;
+ 		}else {
++			#if IS_ENABLED(CONFIG_OPLUS_FEATURE_SCHED_ASSIST)
+ 			pause_client_state[type] &= ~client;
++			#endif
+ 			halt_cpu_state->client_vote_mask[type] &= ~client;
+ 		}
+ 	}
+@@ -455,9 +463,11 @@ static int walt_halt_cpus(struct cpumask *cpus, enum pause_client client, enum p
+ 	else
+ 		update_clients(&requested_cpus, true, client, type);
+ 
++	#if IS_ENABLED(CONFIG_OPLUS_FEATURE_SCHED_ASSIST)
+ 	cpumask_copy(&cur_cpus_halt_mask, cpu_halt_mask);
+ 	cpumask_copy(&cur_cpus_phalt_mask, cpu_partial_halt_mask);
+ 	sa_corectl_systrace_c();
++	#endif
+ 
+ unlock:
+ 	raw_spin_unlock_irqrestore(&halt_lock, flags);
+@@ -504,9 +514,11 @@ static int walt_start_cpus(struct cpumask *cpus, enum pause_client client, enum
+ 		update_clients(&requested_cpus, true, client, type);
+ 	}
+ 
++	#if IS_ENABLED(CONFIG_OPLUS_FEATURE_SCHED_ASSIST)
+ 	cpumask_copy(&cur_cpus_halt_mask, cpu_halt_mask);
+ 	cpumask_copy(&cur_cpus_phalt_mask, cpu_partial_halt_mask);
+ 	sa_corectl_systrace_c();
++	#endif
+ 	raw_spin_unlock_irqrestore(&halt_lock, flags);
+ 
+ 	return ret;

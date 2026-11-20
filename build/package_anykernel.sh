@@ -84,5 +84,5 @@ cp "$out/build-info.json" "$dist/"
 
 step "Verify package integrity"
 unzip -t "$dist/$zipname" >/dev/null
-sha256sum -c "$dist/SHA256SUMS" >/dev/null
+( cd "$dist" && sha256sum -c SHA256SUMS ) >/dev/null
 log "dist ready: $dist/$zipname ($(du -h "$dist/$zipname" | cut -f1))"

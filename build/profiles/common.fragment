@@ -44,3 +44,7 @@
 # 'drivers/power/oplus/Makefile'); the Kconfig survives in drivers/power/
 # Kconfig, so it must be forced off here like the modules above.
 # CONFIG_OPLUS_ADSP_CHARGER is not set
+# CONFIG_SCSI_UFS_QCOM: ufs-qcom.c calls register_device_proc() and
+# register_device_proc_for_ufsplus(), declared only in the unpublished
+# soc/oplus/device_info.h chain (run 15); stock module remains in use.
+# CONFIG_SCSI_UFS_QCOM is not set

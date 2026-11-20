@@ -1,0 +1,37 @@
+diff --git a/drivers/soc/Makefile b/drivers/soc/Makefile
+index dd1a08d..fef387c 100644
+--- a/drivers/soc/Makefile
++++ b/drivers/soc/Makefile
+@@ -47,7 +47,6 @@ obj-$(CONFIG_OPLUS_DEVICE_IFNO)  +=  oplus/device_info/
+ #endif /* OPLUS_FEATURE_TP_BASIC */
+ 
+ #ifdef OPLUS_FEATURE_BOOT
+-obj-y += oplus/boot/
+ #endif /* OPLUS_FEATURE_BOOT */
+ 
+ #ifdef OPLUS_FEATURE_MODEM_MINIDUMP
+@@ -55,10 +54,8 @@ obj-$(CONFIG_OPLUS_FEATURE_RECORD_MDMRST)     += oplus/mdmrst/
+ #endif /*OPLUS_FEATURE_MODEM_MINIDUMP*/
+ 
+ obj-$(CONFIG_OPLUS_FEATURE_QCOM_WATCHDOG) += oplus/boot/qcom_watchdog/
+-obj-y += oplus/dft/
+ 
+ #ifdef OPLUS_UFS_DRIVER
+-obj-y     += oplus/storage/
+ obj-$(CONFIG_OPLUS_UFS_DRIVER) += oplus/storage/common/file_record/
+ #endif
+ 
+diff --git a/kernel/locking/Makefile b/kernel/locking/Makefile
+index afd151a..ea92573 100644
+--- a/kernel/locking/Makefile
++++ b/kernel/locking/Makefile
+@@ -3,7 +3,7 @@
+ # and is generally not a function of system call inputs.
+ KCOV_INSTRUMENT		:= n
+ 
+-obj-y += mutex.o semaphore.o rwsem.o percpu-rwsem.o oplus_locking.o
++obj-y += mutex.o semaphore.o rwsem.o percpu-rwsem.o
+ 
+ # Avoid recursion lockdep -> sanitizer -> ... -> lockdep.
+ KCSAN_SANITIZE_lockdep.o := n
+

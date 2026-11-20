@@ -35,3 +35,7 @@
 # CONFIG_QCOM_Q6V5_PAS is not set
 # CONFIG_I2C_MSM_GENI is not set
 # CONFIG_INPUT_QCOM_HV_HAPTICS is not set
+# CONFIG_QCOM_STATS and CONFIG_OPLUS_NFC also depend on the unpublished
+# oplus project header chain (get_project); disabled for the same reason.
+# CONFIG_QCOM_STATS is not set
+# CONFIG_OPLUS_NFC is not set

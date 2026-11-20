@@ -13,13 +13,21 @@ set -euo pipefail
 source "$(cd "$(dirname "$0")/../" && pwd)/common.sh"
 
 out="$ROOT/out"
-[[ -f "$out/Module.symvers" ]] || die "missing out/Module.symvers"
+[[ -f "$out/Module.symvers" ]] || {
+  echo "ERROR: missing out/Module.symvers; out/ listing (top 20):" >&2
+  find "$out" -maxdepth 1 2>/dev/null | head -n20 >&2
+  die "missing out/Module.symvers"
+}
+if [[ -f "$out/build-info.json" ]]; then
+  kmi_gen="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["kmi"])' "$out/build-info.json" 2>/dev/null || true)"
+  [[ "$kmi_gen" == "android14-11" ]] || die "build-info kmi is '${kmi_gen:-unset}', expected android14-11"
+  log "KMI generation OK (build-info.json): android14-11"
+else
+  die "missing out/build-info.json - cannot verify KMI generation"
+fi
 
 release="$(cat "$out/include/config/kernel.release" 2>/dev/null || true)"
-case "$release" in
-  *android14-11*) log "KMI generation OK: $release" ;;
-  *) die "kernel release lacks android14-11: ${release:-unknown}" ;;
-esac
+log "kernel release: ${release:-unknown}"
 
 protect="$ROOT/kernel/android/abi_gki_protected_exports_aarch64"
 [[ -f "$protect" ]] || die "missing protected-exports list at $protect"

@@ -40,10 +40,13 @@ for forbidden in init_boot dtbo vendor_boot vbmeta super; do
 done
 
 release="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["kernel_release"])' "$dist/build-info.json")"
-case "$release" in
-  *android14-11*) log "kernel release KMI string OK: $release" ;;
-  *) echo "FAIL kernel release lacks android14-11: $release"; status=1 ;;
-esac
+kmi_gen="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["kmi"])' "$dist/build-info.json" 2>/dev/null || true)"
+if [[ "$kmi_gen" == "android14-11" ]]; then
+  log "KMI generation OK (build-info.json): $kmi_gen, release $release"
+else
+  echo "FAIL build-info kmi is '${kmi_gen:-unset}', expected android14-11"
+  status=1
+fi
 
 [[ $status -eq 0 ]] || die "device params failed"
 log "device params OK: block=boot, A/B aware, device check on, KMI android14-11"

@@ -83,6 +83,9 @@ make "${MAKE_ARGS[@]}" KSU_BUILD_REF=v3.0.0 -j"$(nproc)" \
   headers_install Image 2>&1 | tee "$OUT/build.log"
 
 [[ -s "$OUT/arch/arm64/boot/Image" ]] || die "no Image produced"
+# Image-only modpost writes vmlinux.symvers; the verification checks read
+# Module.symvers, so alias the file when the Image-only name is present.
+[[ -s "$OUT/vmlinux.symvers" ]] && cp "$OUT/vmlinux.symvers" "$OUT/Module.symvers"
 [[ -s "$OUT/Module.symvers" ]] || die "no Module.symvers produced"
 
 release="$(cat "$OUT/include/config/kernel.release" 2>/dev/null || echo unknown)"

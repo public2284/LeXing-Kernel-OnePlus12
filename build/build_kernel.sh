@@ -75,8 +75,12 @@ if [[ "${CCACHE:-false}" == "true" ]]; then
   export CXX="ccache clang++"
   export CCACHE_DIR="${CCACHE_DIR:-/root/.ccache}"
 fi
+# Image only: the AnyKernel3 package flashes just the boot Image
+# (build/package_anykernel.sh), the device keeps its stock vendor modules,
+# and the published tree cannot close the vendor module symbol set anyway
+# (unpublished oplus exports; see patches 0260..0291 and runs 12..17).
 make "${MAKE_ARGS[@]}" KSU_BUILD_REF=v3.0.0 -j"$(nproc)" \
-  headers_install Image modules 2>&1 | tee "$OUT/build.log"
+  headers_install Image 2>&1 | tee "$OUT/build.log"
 
 [[ -s "$OUT/arch/arm64/boot/Image" ]] || die "no Image produced"
 [[ -s "$OUT/Module.symvers" ]] || die "no Module.symvers produced"

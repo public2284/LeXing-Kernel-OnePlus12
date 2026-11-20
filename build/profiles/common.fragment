@@ -39,3 +39,8 @@
 # oplus project header chain (get_project); disabled for the same reason.
 # CONFIG_QCOM_STATS is not set
 # CONFIG_OPLUS_NFC is not set
+# CONFIG_OPLUS_ADSP_CHARGER=y reaches drivers/power/oplus/, which is another
+# unpublished symlink tree (run 14: No rule to make target
+# 'drivers/power/oplus/Makefile'); the Kconfig survives in drivers/power/
+# Kconfig, so it must be forced off here like the modules above.
+# CONFIG_OPLUS_ADSP_CHARGER is not set

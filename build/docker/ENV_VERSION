@@ -1,4 +1,4 @@
 # Build Environment Release version (docs/VERSIONING.md). Bump on every change
 # of base image, clang, build dependencies or Docker digest. A kernel release
 # records which environment version built it in out/build-info.json.
-ENV_VERSION=b1
+ENV_VERSION=b2

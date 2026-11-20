@@ -63,3 +63,17 @@ patches:
     upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
     sha256: 33f549ad3ddaae9819d454c955c9c8528ae1942a631f7561e22b26cf50f35a6c
     license: GPL-2.0-only
+  - id: "0230"
+    name: Guard the unguarded oplus_cpu uses in kernel/sched/walt/walt_halt.c
+    description: >-
+      walt_halt.c uses oplus_cur_pause_client, cur_cpus_halt_mask,
+      cur_cpus_phalt_mask and sa_corectl_systrace_c unconditionally inside
+      CONFIG_HOTPLUG_CPU, while their declarations are published only behind
+      the oplus_cpu include guards, so the OSS tree does not compile with those
+      features off. The five use sites are wrapped in
+      #if IS_ENABLED(CONFIG_OPLUS_FEATURE_SCHED_ASSIST) so the file compiles
+      both ways. Verified against the pinned file (git apply --check clean).
+    source_url: https://github.com/OnePlusOSS/android_kernel_oneplus_sm8650
+    upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
+    sha256: 118d0c66477a483c5a92d66c81d04fd66ad1686017007843c255b403684df6d8
+    license: GPL-2.0-only

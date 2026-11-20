@@ -26,7 +26,33 @@ sample() {
 }
 
 render() {
-  [[ -f "$metrics_json" ]] || die "no $metrics_json to render"
+  # summarize the samples collected by build_kernel.sh (out/metrics.tsv) into
+  # out/metrics.json; render that. The metrics.json file may also be produced
+  # by other tooling, in which case it is simply displayed as-is.
+  if [[ ! -f "$metrics_json" && -f "$out/metrics.tsv" ]]; then
+    python3 - "$out/metrics.tsv" "$metrics_json" <<'PY'
+import json, sys
+tsv, out = sys.argv[1], sys.argv[2]
+rows = []
+for line in open(tsv, encoding='utf-8', errors='replace'):
+    parts = line.rstrip('\n').split('\t')
+    if len(parts) < 2 or not parts[0]:
+        continue
+    row = {'unix_utc': parts[0], 'step': parts[1]}
+    for kv in parts[2:]:
+        if '=' in kv:
+            k, v = kv.split('=', 1)
+            row[k] = v
+    rows.append(row)
+with open(out, 'w', encoding='utf-8') as fh:
+    json.dump(rows, fh, indent=2)
+    fh.write('\n')
+PY
+  fi
+  if [[ ! -f "$metrics_json" ]]; then
+    echo "no $metrics_json to render (no metrics.tsv was collected either - the build job may not run build_kernel.sh)" >&2
+    exit 0   # report the gap honestly; the report job stays green
+  fi
   {
     echo '## Build metrics'
     echo '```json'

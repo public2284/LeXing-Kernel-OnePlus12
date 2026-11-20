@@ -96,3 +96,22 @@ patches:
     upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
     sha256: 1ea5526994cebc9cf470346420e5e9114cf570fcc42d63ab4d83155000413d6a
     license: GPL-2.0-only
+
+
+  - id: "0250"
+    name: Tolerate broken symlink headers in kernel/gen_kheaders.sh
+    description: >-
+      CONFIG_IKHEADERS archives the header tree with `find include/ -name
+      "*.h" | cpio -L`. The OnePlusOSS release publishes 13 headers only as
+      symlinks into unpublished oplus trees (include/linux/{task_overload,
+      cpufreq_health,cpufreq_bouncing,pogo_common,oplus_omrg}.h, include/
+      trace/events/oplus_omrg_trace.h and eight include/soc/oplus headers),
+      so cpio exits nonzero on "Cannot stat", and with `set -e` the script
+      aborts at "GEN kernel/kheaders_data.tar.xz" (run 11 failure). Both
+      cpio passes get `|| true` so dead symlinks are skipped instead of
+      killing the build; the embedded header archive only loses files that
+      do not exist in the release at all.
+    source_url: https://github.com/OnePlusOSS/android_kernel_oneplus_sm8650
+    upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
+    sha256: e21c907a249ab6f4db3fb3a70682886e2accaef5ebcf12f601f35d359488e7eb
+    license: GPL-2.0-only

@@ -1,0 +1,23 @@
+diff --git a/kernel/gen_kheaders.sh b/kernel/gen_kheaders.sh
+index 17b9ebb..7cd4cd5 100644
+--- a/kernel/gen_kheaders.sh
++++ b/kernel/gen_kheaders.sh
+@@ -66,7 +66,7 @@ if [ "$building_out_of_srctree" ]; then
+ 		cd $srctree
+ 		for f in $dir_list
+ 			do find "$f" -name "*.h";
+-		done | cpio --quiet -L -pd $cpio_dir
++		done | cpio --quiet -L -pd $cpio_dir || true
+ 	)
+ fi
+ 
+@@ -74,7 +74,7 @@ fi
+ # of tree builds having stale headers in srctree. Just silence CPIO for now.
+ for f in $dir_list;
+ 	do find "$f" -name "*.h";
+-done | cpio --quiet -L -pdu $cpio_dir >/dev/null 2>&1
++done | cpio --quiet -L -pdu $cpio_dir >/dev/null 2>&1 || true
+ 
+ # Remove comments except SDPX lines
+ find $cpio_dir -type f -print0 |
+

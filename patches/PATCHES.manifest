@@ -139,3 +139,30 @@ patches:
     upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
     sha256: b74a7f6a58879d28c77120e0a7915a31867901fd6db3cdb758e5b549b0ba2d11
     license: GPL-2.0-only
+
+
+  - id: "0300"
+    name: Provide no-op bodies for the unpublished oplus lock handlers
+    description: >-
+      Runs 12-17 removed the unpublished-tree Makefile/Kconfig/fragment
+      references, but the vmlinux link itself still failed (run 18):
+      mutex.c, rtmutex_api.c, rtmutex.c, rwsem.c and percpu-rwsem.c call the
+      oplus lock-instrumentation handlers (mutex_lock_handler,
+      mutex_wait_handler, rtmutex_lock_handler, rtmutex_wait_handler,
+      rwsem_lock_handler, rwsem_read_wait_handler,
+      android_vh_pcpu_rwsem_handler, pcp_wait_handler) with unconditional
+      extern declarations, and their only definitions lived in
+      kernel/locking/oplus_locking.c, which the OSS release publishes only as
+      a broken symlink (0240 dropped the obj-y entry because the file itself
+      does not exist). kernel/locking/oplus_locking_nop.c now provides
+      no-op bodies so vmlinux links, with the OPLUS lock-event telemetry
+      disabled. All eight symbols are EXPORT_SYMBOL'd because stock vendor
+      modules reference them (hci_uart.ko references
+      android_vh_pcpu_rwsem_handler); without the exports those modules
+      would fail to load against this kernel. No behavior beyond the
+      telemetry is implemented: the bodies are empty pending publication of
+      the original code.
+    source_url: https://github.com/OnePlusOSS/android_kernel_oneplus_sm8650
+    upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
+    sha256: 07bddb1bdf6a67fe56985da17a1fe40d0ddda2cc59ec5bcaff2eeed4704af60d
+    license: GPL-2.0-only

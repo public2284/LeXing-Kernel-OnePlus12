@@ -1,0 +1,65 @@
+diff --git a/kernel/locking/Makefile b/kernel/locking/Makefile
+index ea92573..7a64ccc 100644
+--- a/kernel/locking/Makefile
++++ b/kernel/locking/Makefile
+@@ -3,7 +3,7 @@
+ # and is generally not a function of system call inputs.
+ KCOV_INSTRUMENT		:= n
+ 
+-obj-y += mutex.o semaphore.o rwsem.o percpu-rwsem.o
++obj-y += mutex.o semaphore.o rwsem.o percpu-rwsem.o oplus_locking_nop.o
+ 
+ # Avoid recursion lockdep -> sanitizer -> ... -> lockdep.
+ KCSAN_SANITIZE_lockdep.o := n
+diff --git a/kernel/locking/oplus_locking_nop.c b/kernel/locking/oplus_locking_nop.c
+new file mode 100644
+index 0000000..9bc1909
+--- /dev/null
++++ b/kernel/locking/oplus_locking_nop.c
+@@ -0,0 +1,45 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * No-op placeholders for the OPLUS lock-instrumentation handlers.
++ *
++ * The OnePlusOSS release publishes kernel/locking/oplus_locking.c only as a
++ * broken symlink into an unpublished tree (see patches/0240), while mutex.c,
++ * rtmutex_api.c, rtmutex.c, rwsem.c and percpu-rwsem.c call these handlers
++ * unconditionally (the extern declarations sit at the top of each file, and
++ * the root Makefile defines -DOPLUS_FEATURE_CHG_BASIC unconditionally). The
++ * real bodies are not public; these no-ops keep vmlinux linking with the
++ * OPLUS lock-event telemetry disabled. The symbols are exported because
++ * stock vendor modules reference them (e.g. hci_uart.ko references
++ * android_vh_pcpu_rwsem_handler); without the exports those modules would
++ * fail to load against this kernel.
++ */
++#include <linux/sched.h>
++#include <linux/export.h>
++#include <linux/mutex.h>
++#include <linux/rtmutex.h>
++#include <linux/rwsem.h>
++#include <linux/percpu-rwsem.h>
++
++void mutex_lock_handler(u64 lock, struct task_struct *tsk, unsigned long jiffies) { }
++EXPORT_SYMBOL(mutex_lock_handler);
++
++void mutex_wait_handler(struct mutex *lock) { }
++EXPORT_SYMBOL(mutex_wait_handler);
++
++void rtmutex_lock_handler(u64 lock, struct task_struct *tsk, unsigned long jiffies) { }
++EXPORT_SYMBOL(rtmutex_lock_handler);
++
++void rtmutex_wait_handler(struct rt_mutex_base *lock) { }
++EXPORT_SYMBOL(rtmutex_wait_handler);
++
++void rwsem_lock_handler(u64 sem, struct task_struct *tsk, unsigned long jiffies) { }
++EXPORT_SYMBOL(rwsem_lock_handler);
++
++void rwsem_read_wait_handler(struct rw_semaphore *sem) { }
++EXPORT_SYMBOL(rwsem_read_wait_handler);
++
++void android_vh_pcpu_rwsem_handler(u64 sem, struct task_struct *tsk, unsigned long jiffies) { }
++EXPORT_SYMBOL(android_vh_pcpu_rwsem_handler);
++
++void pcp_wait_handler(struct percpu_rw_semaphore *sem, bool is_reader, int phase) { }
++EXPORT_SYMBOL(pcp_wait_handler);
+

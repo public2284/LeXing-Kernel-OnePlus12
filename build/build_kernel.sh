@@ -99,11 +99,10 @@ kernel_commit="$(git -C "$ROOT/kernel" rev-parse HEAD 2>/dev/null || echo unknow
 config_sha256="$(sha256sum "$OUT/.config" | cut -d' ' -f1)"
 env_version="$(env_version)"
 image_ref="${IMAGE_REF:-}"
-python3 - "$OUT" "$PROFILE" "$release" "$clang_version" "$super_commit" "$kernel_commit" "$ksu_commit" "$config_sha256" "$env_version" "$image_ref" <<'PY'
+python3 - "$OUT" "$PROFILE" "$release" "$clang_version" "$super_commit" "$kernel_commit" "$ksu_commit" "$config_sha256" "$env_version" "$image_ref" "$ROOT" <<'PY'
 import json, os, sys, yaml
 (out, profile, release, clang, super_commit, kernel_commit, ksu_commit,
- config_sha, env_version, image_ref) = sys.argv[1:]
-root = os.path.dirname(os.path.dirname(os.path.abspath(out)))
+ config_sha, env_version, image_ref, root) = sys.argv[1:]
 manifest = yaml.safe_load(open(os.path.join(root, 'patches', 'PATCHES.manifest'), encoding='utf-8')) or {}
 payload = {
     'schema': 'lexing.build-info/v1',

@@ -1,0 +1,40 @@
+diff --git a/drivers/nfc/oplus_nfc/oplus_nfc.c b/drivers/nfc/oplus_nfc/oplus_nfc.c
+index b8a1e92..0e39a64 100644
+--- a/drivers/nfc/oplus_nfc/oplus_nfc.c
++++ b/drivers/nfc/oplus_nfc/oplus_nfc.c
+@@ -13,7 +13,6 @@
+ #include <linux/seq_file.h>
+ #include <linux/platform_device.h>
+ #include <linux/of_gpio.h>
+-#include <soc/oplus/system/oplus_project.h>
+ #include <linux/io.h>
+ #include <stdbool.h>
+ 
+diff --git a/drivers/soc/qcom/qcom_stats.c b/drivers/soc/qcom/qcom_stats.c
+index 5b3028c..70f3997 100644
+--- a/drivers/soc/qcom/qcom_stats.c
++++ b/drivers/soc/qcom/qcom_stats.c
+@@ -22,9 +22,6 @@
+ #include <linux/soc/qcom/smem.h>
+ #include <soc/qcom/qcom_stats.h>
+ #include <clocksource/arm_arch_timer.h>
+-//Begin George
+-#include <soc/oplus/system/oplus_project.h>
+-//End   George
+ 
+ #define RPM_DYNAMIC_ADDR	0x14
+ #define RPM_DYNAMIC_ADDR_MASK	0xFFFF
+diff --git a/drivers/ufs/host/ufs-qcom.c b/drivers/ufs/host/ufs-qcom.c
+index bbfb3c7..b10a879 100644
+--- a/drivers/ufs/host/ufs-qcom.c
++++ b/drivers/ufs/host/ufs-qcom.c
+@@ -33,8 +33,6 @@
+ #include <scsi/scsi.h>
+ #include <scsi/scsi_ioctl.h>
+ #include <scsi/scsi_cmnd.h>
+-//bsp.storage.ufs 2021.10.14 add for /proc/devinfo/ufs
+-#include <soc/oplus/device_info.h>
+ #if IS_ENABLED(CONFIG_SCHED_WALT)
+ #include <linux/sched/walt.h>
+ #endif
+

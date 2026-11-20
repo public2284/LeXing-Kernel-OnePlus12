@@ -25,3 +25,13 @@
 # ./mm_boost_pool/oplus_boost_pool.o from it; force it off for the same
 # reason as the kernel/oplus_cpu features above.
 # CONFIG_OPLUS_FEATURE_MM_BOOSTPOOL is not set
+# Vendor modules that reference OPLUS headers not published in the OSS release
+# (mm_kevent_fb / boot_mode / oplus_audio_switch chains) cannot be built from
+# public sources; the stock modules remain in vendor_dlkm, so they stay off
+# here. See patches/0260 for the audit.
+# CONFIG_QCOM_WCD_USBSS_I2C is not set
+# CONFIG_QCOM_FSA4480_I2C is not set
+# CONFIG_QCOM_Q6V5_COMMON is not set
+# CONFIG_QCOM_Q6V5_PAS is not set
+# CONFIG_I2C_MSM_GENI is not set
+# CONFIG_INPUT_QCOM_HV_HAPTICS is not set

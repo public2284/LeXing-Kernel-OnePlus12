@@ -115,3 +115,23 @@ patches:
     upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
     sha256: e21c907a249ab6f4db3fb3a70682886e2accaef5ebcf12f601f35d359488e7eb
     license: GPL-2.0-only
+
+  - id: "0260"
+    name: Drop vestigial oplus includes; disable modules needing unpublished headers
+    description: >-
+      Six vendor modules reference OPLUS headers that only exist behind
+      symlinks into unpublished trees and therefore cannot be built from the
+      OSS release at all: QCOM_WCD_USBSS_I2C (mm_fb kevents, oplus_audio_switch,
+      boot_mode), QCOM_FSA4480_I2C (mm_fb kevents), QCOM_Q6V5_COMMON/PAS
+      (mm_fb kevents), I2C_MSM_GENI (get_boot_mode), and INPUT_QCOM_HV_HAPTICS
+      (get_boot_mode). The stock modules remain in vendor_dlkm, so they are
+      forced off in build/profiles/common.fragment until OPLUS publishes the
+      headers; no source stubs are fabricated. Separately, qcom_stats.c,
+      ufs-qcom.c and oplus_nfc.c include soc/oplus/system/oplus_project.h or
+      soc/oplus/device_info.h without using a single symbol from them; dead
+      includes removed verbatim (run 12 fatal error: qcom_stats.c ->
+      oplus_project.h -> soc/oplus/boot/oplus_project.h, file not found).
+    source_url: https://github.com/OnePlusOSS/android_kernel_oneplus_sm8650
+    upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
+    sha256: b74a7f6a58879d28c77120e0a7915a31867901fd6db3cdb758e5b549b0ba2d11
+    license: GPL-2.0-only

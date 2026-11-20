@@ -15,13 +15,16 @@ PROFILE="${PROFILE:-minimal}"
 OUT="$ROOT/out"
 
 step "0/7 Validate profile"
+bash "$(cd "$(dirname "$0")" && pwd)/metrics.sh" sample "0_7 Validate profile" || true
 fragment="$(profile_fragment "$PROFILE")"
 log "profile=$PROFILE fragment=$fragment"
 
 step "1/7 Phase gate"
+bash "$(cd "$(dirname "$0")" && pwd)/metrics.sh" sample "1_7 Phase gate" || true
 phase_at_least phase3 || die "compilation blocked: .phase-state is '$(phase_state)', needs phase3 (see docs/phase-gate.md)"
 
 step "2/7 Kernel source pins"
+bash "$(cd "$(dirname "$0")" && pwd)/metrics.sh" sample "2_7 Kernel source pins" || true
 kernel="$ROOT/kernel"
 [[ -f "$kernel/Makefile" ]] || die "kernel submodule not checked out"
 [[ -f "$kernel/scripts/kconfig/merge_config.sh" ]] || die "kernel tree missing scripts/kconfig/merge_config.sh"
@@ -33,6 +36,7 @@ log "sukisu-nova: $(git -C "$ROOT/sukisu-nova" rev-parse --short=12 HEAD 2>/dev/
 mkdir -p "$OUT"
 
 step "3/7 Apply patches and integrate SukiSU-Nova"
+bash "$(cd "$(dirname "$0")" && pwd)/metrics.sh" sample "3_7 Apply patches and integrate SukiSU-Nova" || true
 if [[ "$(manifest_patches)" -gt 0 ]]; then
   python3 - "$ROOT/patches/PATCHES.manifest" <<'PY' | while IFS= read -r p; do
 import sys, yaml
@@ -50,6 +54,7 @@ fi
 bash "$ROOT/build/integrate_sukisu.sh"
 
 step "4/7 Merge build profile into defconfig"
+bash "$(cd "$(dirname "$0")" && pwd)/metrics.sh" sample "4_7 Merge build profile into defconfig" || true
 # GKI base + SM8650 vendor config + profile fragment, merged with the kernel's
 # own merge_config.sh, then resolved with olddefconfig.
 cd "$kernel"
@@ -65,6 +70,7 @@ make O="$OUT" ARCH=arm64 LLVM=1 LLVM_IAS=1 \
 log "merged .config written to $OUT/.config"
 
 step "5/7 Compile"
+bash "$(cd "$(dirname "$0")" && pwd)/metrics.sh" sample "5_7 Compile" || true
 # headers_install first: the SukiSU-Nova preinit runner needs the installed
 # UAPI headers under <objtree>/usr/include (CONFIG_HEADERS_INSTALL=y).
 MAKE_ARGS=(O="$OUT" ARCH=arm64 LLVM=1 LLVM_IAS=1
@@ -92,6 +98,7 @@ release="$(cat "$OUT/include/config/kernel.release" 2>/dev/null || echo unknown)
 log "kernel release: $release"
 
 step "6/7 Collect outputs"
+bash "$(cd "$(dirname "$0")" && pwd)/metrics.sh" sample "6_7 Collect outputs" || true
 clang_version="$(clang --version | head -n1)"
 super_commit="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || echo unknown)"
 ksu_commit="$(git -C "$ROOT/sukisu-nova" rev-parse HEAD 2>/dev/null || echo unknown)"
@@ -131,4 +138,5 @@ PY
 log "build-info.json written"
 
 step "7/7 Done"
+bash "$(cd "$(dirname "$0")" && pwd)/metrics.sh" sample "7_7 Done" || true
 log "build finished: $release (profile $PROFILE)"

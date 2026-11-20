@@ -110,6 +110,7 @@ jobs:
           path: out/
           retention-days: ${{ inputs.retention_days }}
           if-no-files-found: error
+          include-hidden-files: true
 
   package:
     name: Package (AnyKernel3)

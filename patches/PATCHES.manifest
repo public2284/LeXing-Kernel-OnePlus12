@@ -77,3 +77,22 @@ patches:
     upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
     sha256: 118d0c66477a483c5a92d66c81d04fd66ad1686017007843c255b403684df6d8
     license: GPL-2.0-only
+
+
+  - id: "0240"
+    name: Drop unconditional obj-y entries into the unpublished oplus trees
+    description: >-
+      kernel/locking/Makefile lists oplus_locking.o in an unconditional obj-y,
+      and drivers/soc/Makefile lists oplus/boot/, oplus/dft/ and oplus/storage/
+      in obj-y lines that sit inside '#ifdef OPLUS_FEATURE_*' blocks. kbuild
+      treats such blocks as comments, so those references are unconditional,
+      while the four targets exist only behind symlinks into trees that are
+      not part of the OSS release, which is why stock make aborts with
+      "No rule to make target 'kernel/locking/oplus_locking.o'". The four
+      obj-y entries are removed; every remaining oplus reference in both
+      Makefiles is obj-$(CONFIG_...) and inert, because patches 0200/0210/0220
+      removed the Kconfig sources that defined their symbols.
+    source_url: https://github.com/OnePlusOSS/android_kernel_oneplus_sm8650
+    upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
+    sha256: 1ea5526994cebc9cf470346420e5e9114cf570fcc42d63ab4d83155000413d6a
+    license: GPL-2.0-only

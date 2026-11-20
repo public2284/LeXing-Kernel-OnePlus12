@@ -19,3 +19,9 @@
 # CONFIG_OPLUS_FEATURE_LOADBALANCE is not set
 # CONFIG_OPLUS_FEATURE_ABNORMAL_FLAG is not set
 # CONFIG_OPLUS_FEATURE_OCH is not set
+
+# drivers/dma-buf/heaps/mm_boost_pool/ is another unpublished symlink tree.
+# CONFIG_OPLUS_FEATURE_MM_BOOSTPOOL=y in the vendor config would compile
+# ./mm_boost_pool/oplus_boost_pool.o from it; force it off for the same
+# reason as the kernel/oplus_cpu features above.
+# CONFIG_OPLUS_FEATURE_MM_BOOSTPOOL is not set

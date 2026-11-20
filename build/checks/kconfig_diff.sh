@@ -7,7 +7,11 @@ set -euo pipefail
 source "$(cd "$(dirname "$0")/../" && pwd)/common.sh"
 
 out="$ROOT/out"
-[[ -f "$out/.config" ]] || die "missing out/.config"
+[[ -f "$out/.config" ]] || {
+  echo "ERROR: missing out/.config; out/ listing (top 20):" >&2
+  find "$out" -maxdepth 1 2>/dev/null | head -n20 >&2
+  die "missing out/.config"
+}
 profile="${PROFILE:-$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["profile"])' "$out/build-info.json" 2>/dev/null || echo minimal)}"
 
 python3 - "$out/.config" "$profile" <<'PY'

@@ -42,6 +42,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         rsync \
         zlib1g-dev \
         zip \
+        unzip \
         zstd \
     && rm -rf /var/lib/apt/lists/*
 

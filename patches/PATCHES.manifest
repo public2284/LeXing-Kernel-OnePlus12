@@ -117,24 +117,24 @@ patches:
     license: GPL-2.0-only
 
   - id: "0260"
-    name: Drop dead oplus include; scope the unpublished-header module set
+    name: Handle modules with unpublished oplus headers
     description: >-
-      Run 12 failed in qcom_stats.c on the include chain
-      soc/oplus/system/oplus_project.h -> soc/oplus/boot/oplus_project.h,
-      which exists only behind symlinks into unpublished oplus trees (the
-      root Makefile also defines -DOPLUS_FEATURE_CHG_BASIC unconditionally,
-      its '#ifdef' wrapper being a kbuild comment). Audit of every consumer
-      of the unresolved oplus headers (code search at the pinned commit):
-      ufs-qcom.c includes soc/oplus/device_info.h without using any symbol
-      (include removed, module kept); qcom_stats.c and oplus_nfc.c call
-      get_project() from that header; wcd939x-i2c.c, wcd-usbss-utils.c,
-      fsa4480-i2c.c and qcom_q6v5.c use the mm_fb kevent macros, and
-      i2c-msm-geni.c and qcom-hv-haptics.c call get_boot_mode(). Those eight
-      modules cannot be built from the OSS release and are forced off in
-      build/profiles/common.fragment, where 0270 also disables QCOM_STATS and
-      OPLUS_NFC; stock modules in vendor_dlkm remain in use, and no source
-      stubs are fabricated. All other consumers of the oplus headers are
-      built-in files whose references are CONFIG-gated and compiled clean.
+      Runs 12-15 failed on the include chains that only exist behind
+      symlinks into unpublished oplus trees (soc/oplus/system/oplus_project.h
+      -> soc/oplus/boot/*, soc/oplus/device_info.h, soc/oplus/
+      oplus_mm_kevent_fb.h, boot_mode, oplus_audio_switch). The root Makefile
+      also defines -DOPLUS_FEATURE_CHG_BASIC unconditionally (its '#ifdef'
+      wrapper is a kbuild comment). Module set that genuinely uses those
+      symbols and is therefore forced off in build/profiles/common.fragment
+      (stock modules in vendor_dlkm remain in use, no source stubs
+      fabricated): ufs-qcom.c (register_device_proc,
+      register_device_proc_for_ufsplus), qcom_stats.c and oplus_nfc.c
+      (get_project), wcd939x-i2c.c/wcd-usbss-utils.c/fsa4480-i2c.c/
+      qcom_q6v5.c (mm_fb kevents), i2c-msm-geni.c and qcom-hv-haptics.c
+      (get_boot_mode). The ufs-qcom.c include removal itself stays: the
+      module is disabled, and dead-include removal documents the dependency.
+      All other consumers of the oplus headers are built-in files whose
+      references are CONFIG-gated and compiled clean.
     source_url: https://github.com/OnePlusOSS/android_kernel_oneplus_sm8650
     upstream_commit: b2696d4a2bda11cb74de35f839ef0cf6ccc1b9cb
     sha256: b74a7f6a58879d28c77120e0a7915a31867901fd6db3cdb758e5b549b0ba2d11

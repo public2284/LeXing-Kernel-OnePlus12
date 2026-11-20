@@ -48,3 +48,8 @@
 # register_device_proc_for_ufsplus(), declared only in the unpublished
 # soc/oplus/device_info.h chain (run 15); stock module remains in use.
 # CONFIG_SCSI_UFS_QCOM is not set
+# CONFIG_QCOM_SPSS=m selects QCOM_Q6V5_COMMON, re-enabling it despite the =n
+# above (select wins over user assignment in olddefconfig) and rebuilding
+# qcom_q6v5.o (run 16: REMOTEPROC_ADSP undeclared). SPSS itself also lives in
+# the affected module set; the stock module remains in use.
+# CONFIG_QCOM_SPSS is not set

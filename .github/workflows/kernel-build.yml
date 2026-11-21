@@ -10,7 +10,7 @@ on:
       profile:
         description: Build profile
         type: choice
-        options: [minimal, full, debug, experimental]
+        options: [minimal, full, debug, experimental, diagnostic]
         default: minimal
       ccache:
         description: Enable ccache
@@ -19,7 +19,7 @@ on:
   workflow_call:
     inputs:
       profile:
-        description: Build profile (minimal|full|debug|experimental)
+        description: Build profile (minimal|full|debug|experimental|diagnostic)
         type: string
         default: minimal
       ccache:

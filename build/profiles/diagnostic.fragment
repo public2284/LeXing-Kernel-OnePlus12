@@ -1,0 +1,15 @@
+# Build profile: diagnostic.
+# Temporary root-cause isolation profile for Phase 3.2. This is NOT a product
+# profile and must never be used for a release. It tests one variable at a
+# time; retire this file once the boot-hang bisect concludes.
+
+# Keep the built-in SukiSU-Nova route enabled. PR #51 already established that
+# KSU-off alone still hangs, so this profile isolates the next variable only.
+CONFIG_KSU=y
+
+# Stock runs HMBIRD_SCHED=y and no SCHED_CLASS_EXT; gki_defconfig enables
+# SCHED_CLASS_EXT=y. Turn SCX off as the next single-variable bisect step.
+# CONFIG_SCHED_CLASS_EXT is not set
+
+# Keep KPM off, matching minimal and avoiding another diagnostic variable.
+# CONFIG_KPM is not set

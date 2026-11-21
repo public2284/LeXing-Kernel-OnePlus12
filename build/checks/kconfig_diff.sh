@@ -41,7 +41,6 @@ want('CONFIG_KPROBES', 'y', 'SukiSU dependency')
 want('CONFIG_KRETPROBES', 'y', 'SukiSU dependency')
 want('CONFIG_EXT4_FS', 'y', 'SukiSU dependency')
 want('CONFIG_TRACEPOINTS', 'y', 'SukiSU dependency')
-want('CONFIG_KSU', 'y', 'root integration (route A)')
 want('CONFIG_HEADERS_INSTALL', 'y', 'SukiSU preinit runner')
 want('CONFIG_DEBUG_INFO_BTF', 'y', 'BTF baseline')
 want('CONFIG_MODULE_SIG', 'y', 'module signing baseline')
@@ -52,7 +51,15 @@ if 'CONFIG_KSU_SUSFS' in cfg:
     print(f'[lexing] note: CONFIG_KSU_SUSFS={cfg["CONFIG_KSU_SUSFS"]} present (v3.0.0 does not define it)')
 
 if profile == 'minimal':
+    want('CONFIG_KSU', 'y', 'root integration (route A)')
     want('CONFIG_KPM', 'n', 'minimal profile must not enable KPM')
+elif profile == 'diagnostic':
+    want('CONFIG_KSU', 'y', 'diagnostic profile keeps the KSU variable fixed')
+    want('CONFIG_SCHED_CLASS_EXT', 'n', 'diagnostic profile disables SCX')
+    if cfg.get('CONFIG_KPM') == 'y':
+        failures.append('diagnostic profile must not enable KPM')
+else:
+    want('CONFIG_KSU', 'y', 'root integration (route A)')
 
 ksu_syms = {k: v for k, v in cfg.items() if 'KSU' in k or 'SUSFS' in k or 'KPM' in k}
 print(f'[lexing] KSU/SUSFS/KPM-related symbols: {len(ksu_syms)}')

@@ -53,3 +53,31 @@
 # qcom_q6v5.o (run 16: REMOTEPROC_ADSP undeclared). SPSS itself also lives in
 # the affected module set; the stock module remains in use.
 # CONFIG_QCOM_SPSS is not set
+
+# ----------------------------------------------------------------------
+# Device-baseline parity and panic observability (Phase 3.2 verification).
+# Verified against the running stock kernel config (/proc/config.gz, pulled
+# read-only) and the Phase 3 build's out/.config.
+
+# UDMABUF: stock runs CONFIG_UDMABUF=y (display buffer sharing), but neither
+# gki_defconfig nor pineapple_GKI.config sets it, so olddefconfig defaults it
+# off in our builds. Enable for baseline parity.
+CONFIG_UDMABUF=y
+
+# QCOM panic extras below are inherited from pineapple_GKI.config but are
+# ABSENT from the stock kernel config. Verified: the Phase 3.1 failed boot
+# left zero /sys/fs/pstore content even though PSTORE_RAM/PSTORE_CONSOLE are
+# compiled in - QCOM_FORCE_WDOG_BITE_ON_PANIC turns a panic into an immediate
+# watchdog reset that races (and loses) against the ramoops write, and the
+# QCOM_MINIDUMP_PANIC_* family runs extra collection in the panic path that
+# stock never executes. Turn them off so a future failure leaves a log
+# instead of a silent auto-recovery. QCOM_MINIDUMP_PANIC_CPU_CONTEXT /
+# _MEMORY_INFO / _KTASK_STACK depend on QCOM_MINIDUMP_PANIC_DUMP; listing
+# them all explicitly to stay deterministic under olddefconfig.
+# CONFIG_QCOM_FORCE_WDOG_BITE_ON_PANIC is not set
+# CONFIG_QCOM_MINIDUMP_PANIC_DUMP is not set
+# CONFIG_QCOM_MINIDUMP_PANIC_CPU_CONTEXT is not set
+# CONFIG_QCOM_MINIDUMP_PANIC_MEMORY_INFO is not set
+# CONFIG_QCOM_MINIDUMP_PANIC_KTASK_STACK is not set
+# CONFIG_QCOM_PANIC_ON_NOTIF_TIMEOUT is not set
+# CONFIG_QCOM_PANIC_ON_PDR_NOTIF_TIMEOUT is not set

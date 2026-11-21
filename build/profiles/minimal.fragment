@@ -23,3 +23,8 @@
 # Root availability is not expected in this build (no KSU); it exists only to
 # isolate the boot failure. Revert this commit once the bisect concludes.
 # CONFIG_KSU is not set
+
+# Diagnostic variable (Phase 3.2): stock has HMBIRD_SCHED=y and no
+# SCHED_CLASS_EXT, while gki_defconfig enables SCHED_CLASS_EXT=y. Turn SCX
+# off to test whether the ext scheduler is the remaining early-boot suspect.
+# CONFIG_SCHED_CLASS_EXT is not set

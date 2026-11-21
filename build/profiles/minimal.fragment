@@ -4,6 +4,22 @@
 # switch); minimal-ness comes from no KPM, no candidate tunables and no
 # runtime SUSFS list. See docs/phase1/BUILD_PROFILES.md.
 
-# Root framework: built-in SukiSU-Nova (route A). KSU defaults to y in the
-# SukiSU Kconfig; set explicitly so the first build is unambiguous.
-CONFIG_KSU=y
+# DIAGNOSTIC BUILD (Phase 3.2 root-cause bisect, temporary): the two previous
+# L4 attempts hung at the first boot screen and left zero pstore content (a
+# hang, not a panic - ramoops only records panics). Module ABI, flashing and
+# packaging were systematically excluded:
+#   - kernel bytes on boot_b were byte-identical to the CI Image;
+#   - fixed-point module dependency analysis: only oplus_bsp_sched_ext.ko and
+#     oplus_bsp_game_opt.ko (both non-boot-critical, unpublished HMBIRD
+#     symbols) fail to load, with no cascade;
+#   - the reference kernel (different KSU family, same flash flow) boots.
+# Remaining prime suspect: the SukiSU-Nova v3.0.0 built-in integration
+# (patch 0100), whose selinux-hide and task hooks run during early init.
+# This build switches CONFIG_KSU off so the kernel boots without any KSU
+# hooks linked in:
+#   - boots  -> SukiSU-Nova integration is the root cause (choose another
+#     KSU route/version next);
+#   - hangs  -> the problem is in the OnePlusOSS tree or patches 0200-0300.
+# Root availability is not expected in this build (no KSU); it exists only to
+# isolate the boot failure. Revert this commit once the bisect concludes.
+# CONFIG_KSU is not set
